@@ -7,12 +7,9 @@ import (
 	"github.com/spf13/viper"
 )
 
-var (
-	accessKeyId     = "LTAI4G2AQRG1jJ9C6Li1e959"
-	accessKeySecret = "Wr3S5ZHXu9YJVDhS9NrYjw6L8Og6Kp"
-)
-
 func SendEmail(to, sub, body string) error {
+	accessKeyId := viper.GetString("email.id")
+	accessKeySecret := viper.GetString("email.secret")
 	client, err := dm.NewClientWithAccessKey("cn-hangzhou", accessKeyId, accessKeySecret)
 	if err != nil {
 		return err
@@ -20,7 +17,7 @@ func SendEmail(to, sub, body string) error {
 	request := dm.CreateSingleSendMailRequest()
 	request.Scheme = "https"
 
-	request.AccountName = "mail@yi2a.com"
+	request.AccountName = viper.GetString("email.from")
 	request.AddressType = requests.NewInteger(1)
 	request.ReplyToAddress = requests.NewBoolean(false)
 	request.ToAddress = to

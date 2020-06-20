@@ -2,6 +2,7 @@ import axios from 'axios'
 import { Notification, Loading } from 'element-ui'
 import router from './routes'
 import store from './store'
+import helper from './helper'
 
 let loadingInstance = null
 const instance = axios.create({
@@ -48,9 +49,12 @@ instance.interceptors.response.use(response => {
       message: error.response.data.error || tips
     });
     if (error.response.status === 401) {
-      router.push({
-        path: `/login`
-      })
+      helper.removeUser()
+      setTimeout(() => {
+        router.push({
+          path: `/login`
+        })
+      }, 1000);
     }
     return Promise.reject(error)
   } else {

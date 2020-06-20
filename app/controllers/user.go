@@ -14,12 +14,6 @@ import (
 type User struct {
 }
 
-//获取详细信息
-func (u *User) GetProfile(c *gin.Context) {
-	user := GetUserFromContext(c)
-	RespondWithJson(c, http.StatusOK, user)
-}
-
 type registerRequest struct {
 	Name     string `json:"name" valid:"stringlength(6|15)~用户名应该为6-15个字符"`
 	Email    string `json:"email" valid:"required,email~邮箱格式不正确"`
@@ -54,9 +48,16 @@ func (u *User) Register(c *gin.Context) {
 		ErrResponse(c, http.StatusUnprocessableEntity, err)
 		return
 	}
+	//发送欢迎邮件
 	go user.SendWelcomeEmail()
-
-	SuccessResponse(c)
+	//设置token
+	token, _ := jwt.BuildToken(user.ID)
+	user.Token = token
+	if err := user.Save(); err != nil {
+		ErrResponse(c, http.StatusInternalServerError, err)
+		return
+	}
+	RespondWithJson(c, http.StatusOK, user)
 }
 
 type loginRequest struct {
@@ -77,7 +78,7 @@ func (u *User) Login(c *gin.Context) {
 	}
 	user, exsist := models.FindUser("email", req.Email)
 	if !exsist {
-		ErrResponse(c, http.StatusUnprocessableEntity, errors.New("该邮箱不存在"))
+		ErrResponse(c, http.StatusUnprocessableEntity, errors.New("该邮箱用户不存在"))
 		return
 	}
 	if user.Password != helper.Md5(req.Password) {
@@ -154,7 +155,11 @@ func (u *User) ResetPassword(c *gin.Context) {
 
 //发送确认邮箱的邮件
 func (u *User) SendVerifyEmail(c *gin.Context) {
-	user := GetUserFromContext(c)
+	user, exists := models.FindUser("id", c.GetString("userId"))
+	if !exists {
+		ErrResponse(c, http.StatusUnauthorized, errModelNotFound)
+		return
+	}
 	if err := user.SendVerifyEmail(); err != nil {
 		ErrResponse(c, http.StatusInternalServerError, err)
 		return
@@ -164,12 +169,14 @@ func (u *User) SendVerifyEmail(c *gin.Context) {
 
 //验证邮箱
 func (u *User) VerifyEmail(c *gin.Context) {
-	sign := c.Query("sign")
-	if sign == "" {
+	var req struct {
+		Sign string `json:"sign" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
 		ErrResponse(c, http.StatusBadRequest, errors.New("链接错误"))
 		return
 	}
-	user, err := models.DecodeSignUrl("verify", sign)
+	user, err := models.DecodeSignUrl("verify", req.Sign)
 	if err != nil {
 		ErrResponse(c, http.StatusInternalServerError, err)
 		return
@@ -179,4 +186,14 @@ func (u *User) VerifyEmail(c *gin.Context) {
 	_ = user.Save()
 
 	SuccessResponse(c)
+}
+
+//获取详细信息
+func (u *User) GetProfile(c *gin.Context) {
+	user, exists := models.FindUser("id", c.GetString("userId"))
+	if !exists {
+		ErrResponse(c, http.StatusUnauthorized, errModelNotFound)
+		return
+	}
+	RespondWithJson(c, http.StatusOK, user)
 }

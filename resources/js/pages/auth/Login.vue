@@ -34,12 +34,15 @@
         >忘记密码?</router-link>
       </div>
     </form>
-    <p class="text-center text-gray-500 text-xs">&copy;2020 Memory Card. All rights reserved.</p>
+
+    <CopyRight></CopyRight>
   </div>
 </template>
 
 <script>
+import CopyRight from "../../components/CopyRight.vue";
 import helper from "../../libs/helper";
+
 export default {
   name: "Login",
   data() {
@@ -52,7 +55,6 @@ export default {
   },
   methods: {
     handleSubmit() {
-      console.log(this.$store.state);
       if (this.validateForm()) {
         this.$http.post("/login", this.formData).then(res => {
           if ("token" in res) {
@@ -64,7 +66,7 @@ export default {
             setTimeout(() => {
               this.$notify.closeAll();
               this.$router.push({
-                path: "/index"
+                path: "/user"
               });
             }, 2000);
           }
@@ -89,6 +91,9 @@ export default {
       }
       return true;
     }
+  },
+  components: {
+    CopyRight
   }
 };
 </script>

@@ -60,11 +60,15 @@
         type="button"
       >注册</button>
     </form>
-    <p class="text-center text-gray-500 text-xs">&copy;2020 Memory Card. All rights reserved.</p>
+
+    <CopyRight></CopyRight>
   </div>
 </template>
 
 <script>
+import CopyRight from "../../components/CopyRight";
+import helper from '../../libs/helper';
+
 export default {
   name: "Register",
   data() {
@@ -81,18 +85,17 @@ export default {
     handleSubmit() {
       if (this.validateForm()) {
         this.$http.post("/register", this.formData).then(res => {
-          if (res.message == "success") {
-            this.$notify.success({
-              title: "成功",
-              message: "注册成功~即将跳转到登录页面..."
+          this.$notify.success({
+            title: "成功",
+            message: "注册成功~即将跳转到个人页面..."
+          });
+          helper.setUser(res)
+          setTimeout(() => {
+            this.$notify.closeAll();
+            this.$router.push({
+              path: "/user"
             });
-            setTimeout(() => {
-              this.$notify.closeAll()
-              this.$router.push({
-                path: '/login'
-              });
-            }, 2000);
-          }
+          }, 2000);
         });
       }
     },
@@ -128,6 +131,9 @@ export default {
       }
       return true;
     }
+  },
+  components: {
+    CopyRight
   }
 };
 </script>

@@ -19,11 +19,14 @@
         type="button"
       >发送重置邮件</button>
     </form>
-    <p class="text-center text-gray-500 text-xs">&copy;2020 Memory Card. All rights reserved.</p>
+    
+    <CopyRight></CopyRight>
   </div>
 </template>
 
 <script>
+import CopyRight from "../../components/CopyRight";
+
 export default {
   name: "Login",
   data() {
@@ -49,6 +52,9 @@ export default {
         }
       });
     }
+  },
+  components: {
+    CopyRight
   }
 };
 </script>

@@ -1,4 +1,4 @@
-app_name: gvue-scaffold
+app_name: gvue_scaffold
 mode: debug
 addr: :8080
 jwt:
@@ -13,3 +13,7 @@ redis:
   addr: 127.0.0.1:6379
   db: 0
   pwd:
+email:
+  id:
+  secret:
+  from:

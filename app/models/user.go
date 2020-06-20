@@ -18,7 +18,6 @@ type User struct {
 	Email           string     `json:"email" gorm:"size:50"`
 	Password        string     `json:"-" gorm:"size:50"`
 	Avatar          string     `json:"avatar"`
-	Gender          uint8      `json:"gender"`
 	Token           string     `json:"token"`
 }
 
@@ -49,7 +48,7 @@ func (u *User) SendWelcomeEmail() {
 		//TODO 记录日志
 		return
 	}
-	body := fmt.Sprintf("<h3>%s您好:</h3><p>欢迎注册%s，请点击链接: <a href='%s'>%s</a> 进行重置</p><p>或者直接复制链接 %s 到浏览器打开</p><p>有效期30分钟</p>", u.Name, viper.GetString("site.name"), link, link, link)
+	body := fmt.Sprintf("<h3>%s您好:</h3><p>欢迎注册%s，请点击链接: <a href='%s'>%s</a> 进行确认邮箱</p><p>或者直接复制链接 %s 到浏览器打开</p><p>有效期30分钟</p>", u.Name, viper.GetString("site.name"), link, link, link)
 	_ = helper.SendEmail(u.Email, "欢迎注册", body)
 }
 
@@ -59,7 +58,7 @@ func (u *User) SendVerifyEmail() error {
 		//TODO 记录日志
 		return err
 	}
-	body := fmt.Sprintf("<h3>%s您好:</h3><p>您申请验证邮箱，请点击链接: <a href='%s'>%s</a> 进行重置</p><p>或者直接复制链接 %s 到浏览器打开</p><p>有效期30分钟</p>", viper.GetString("site.name"), link, link, link)
+	body := fmt.Sprintf("<h3>%s您好:</h3><p>您申请验证邮箱，请点击链接: <a href='%s'>%s</a> 进行确认邮箱</p><p>或者直接复制链接 %s 到浏览器打开</p><p>有效期30分钟</p>", viper.GetString("site.name"), link, link, link)
 	return helper.SendEmail(u.Email, "验证邮箱", body)
 }
 
@@ -86,7 +85,7 @@ func (u *User) getSignedUrl(t string) (string, error) {
 		host += "/password/reset"
 		values.Set("email", u.Email)
 	case "verify":
-		host += "/api/verification"
+		host += "/verification"
 	default:
 		return "", errors.New("签名失败")
 	}

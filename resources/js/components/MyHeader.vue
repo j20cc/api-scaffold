@@ -18,7 +18,7 @@
       </router-link>
 
       <nav v-if="user" class="md:ml-auto flex flex-wrap items-center text-base justify-center">
-        <router-link class="mr-5 hover:text-gray-900" to="/">{{user.name}}</router-link>
+        <router-link class="mr-5 hover:text-gray-900" to="/user">{{user.name}}</router-link>
         <span class="mr-5 hover:text-gray-900 cursor-pointer" @click="logout">退出</span>
       </nav>
 

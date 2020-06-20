@@ -3,34 +3,19 @@ package controllers
 import (
 	"errors"
 	"github.com/gin-gonic/gin"
-	"github.com/lukedever/gvue-scaffold/app/models"
 	"net/http"
 	"strconv"
 	"strings"
 )
 
 var (
-	ErrModelNotFound = errors.New("not found")
+	errModelNotFound = errors.New("model not found")
 	defaultPageSize  = 15
 )
 
-func GetUserFromContext(c *gin.Context) *models.User {
-	user, exsit := c.Get("user")
-	if !exsit {
-		ErrResponse(c, http.StatusUnauthorized, ErrModelNotFound)
-		return nil
-	}
-	u, ok := user.(*models.User)
-	if !ok {
-		ErrResponse(c, http.StatusUnauthorized, ErrModelNotFound)
-		return nil
-	}
-	return u
-}
-
-func GetQueryPageSize(c *gin.Context) (int, int) {
-	page := c.Query("page")
-	size := c.Query("size")
+func getQueryPageSize(c *gin.Context) (int, int) {
+	page := c.DefaultQuery("page", "1")
+	size := c.DefaultQuery("size", "15")
 	p, _ := strconv.Atoi(page)
 	s, _ := strconv.Atoi(size)
 	if p == 0 {

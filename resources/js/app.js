@@ -7,10 +7,10 @@ Vue.config.productionTip = false
 
 //element
 import { Notification, Loading, MessageBox } from 'element-ui'
-import 'element-ui/lib/theme-chalk/index.css';
+import 'element-ui/lib/theme-chalk/index.css'
 Vue.prototype.$notify = Notification
 Vue.prototype.$loading = Loading.service
-Vue.prototype.$confirm = MessageBox.confirm;
+Vue.prototype.$confirm = MessageBox.confirm
 //http
 import http from './libs/http'
 Vue.prototype.$http = http

@@ -45,10 +45,10 @@ func registerRoutes(r *gin.Engine) {
 	r.POST("/api/login", userController.Login)
 	r.POST("/api/password/email", userController.SendResetEmail)
 	r.POST("/api/password/reset", userController.ResetPassword)
-	r.GET("/api/verification", userController.VerifyEmail)
 	auth := r.Group("/api", middlewares.Auth())
 	//获取详细信息
 	auth.POST("/verification/email", userController.SendVerifyEmail)
+	auth.POST("/verification", userController.VerifyEmail)
 	auth.GET("/profile", userController.GetProfile)
 }
 

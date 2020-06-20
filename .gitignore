@@ -3,4 +3,5 @@ node_modules
 .idea
 .env
 conf.dev.yml
+conf.pro.yml
 *.log

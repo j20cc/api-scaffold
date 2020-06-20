@@ -31,17 +31,17 @@ func BuildToken(userId uint) (string, error) {
 	return token.SignedString(mySigningKey)
 }
 
-func ParseToken(tokenString string) (int, error) {
+func ParseToken(tokenString string) (string, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return mySigningKey, nil
 	})
 	if err != nil {
-		return 0, err
+		return "", err
 	}
 
 	if claims, ok := token.Claims.(*jwt.StandardClaims); ok && token.Valid {
-		return strconv.Atoi(claims.Id)
+		return claims.Id, nil
 	} else {
-		return 0, tokenInvalidErr
+		return "", tokenInvalidErr
 	}
 }

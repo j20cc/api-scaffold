@@ -49,11 +49,14 @@
         type="button"
       >重置</button>
     </form>
-    <p class="text-center text-gray-500 text-xs">&copy;2020 Memory Card. All rights reserved.</p>
+
+    <CopyRight></CopyRight>
   </div>
 </template>
 
 <script>
+import CopyRight from "../../components/CopyRight";
+
 export default {
   name: "Reset",
   data() {
@@ -70,7 +73,6 @@ export default {
   created() {
     let query = this.$route.query;
     if ("email" in query && "sign" in query) {
-      console.log(query);
       this.formData.email = query.email;
       this.formData.sign = query.sign;
     } else {
@@ -125,6 +127,9 @@ export default {
       }
       return true;
     }
+  },
+  components: {
+    CopyRight
   }
 };
 </script>
