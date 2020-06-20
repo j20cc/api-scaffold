@@ -8,10 +8,13 @@ GVUE = gin + vue
 
 .env 中的配置优先于 .env.*.yml 文件
 
+预览地址 [https://gvue.ideaclips.com/](https://gvue.ideaclips.com/)
+
 ## Todo
 
 - [x] 基于 jwt 的用户认证(注册、登录、忘记密码)
 - [x] 发送邮件(使用阿里云邮件，每日200封免费)
+- [ ] 接口限流
 - [ ] 日志
 - [ ] 数据库迁移
 - [ ] ...
@@ -31,6 +34,16 @@ $ make run      #运行
 
 打开浏览器 [http://localhost:3000](http://localhost:3000)
 
-> 如何修改项目名?
-> 克隆到指定目录: git clone https://github.com/lukedever/gvue-scaffold yourpath
-> 批量替换: sed -i 's/lukedever\/gvue-scaffold/yourname\/yourpath/g' `grep -rl gvue-scaffold yourpath/`
+## 如何修改项目名?
+
+克隆到指定目录
+
+```sh
+$ git clone https://github.com/lukedever/gvue-scaffold yourpath
+```
+
+sed 批量替换
+
+```sh
+$ sed -i 's/lukedever\/gvue-scaffold/yourname\/yourpath/g' `grep -rl gvue-scaffold yourpath/`
+```
