@@ -1,6 +1,7 @@
-app_name: gvue_scaffold
-mode: debug
-addr: :8080
+app:
+  name: gvue-scaffold
+  mode: debug
+  addr: :8001
 jwt:
   secret: 6a895f1b61d335d9d31b070649c10f1c
   expire_day: 30
