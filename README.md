@@ -34,7 +34,7 @@ $ make run      #运行
 
 打开浏览器 [http://localhost:3000](http://localhost:3000)
 
-## 如何修改项目名?
+## 如何修改项目名
 
 克隆到指定目录
 
