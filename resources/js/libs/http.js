@@ -8,7 +8,7 @@ let loadingInstance = null
 const instance = axios.create({
   timeout: 10000,
   // baseURL: process.env.NODE_ENV === 'production' ? prohost : devhost
-  baseURL: '/api'
+  baseURL: '/api',
 })
 
 let httpCode = {

@@ -2,6 +2,5 @@ node_modules
 .vscode
 .idea
 .env
-conf.dev.yml
-conf.pro.yml
 *.log
+.DS_store

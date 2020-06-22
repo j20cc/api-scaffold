@@ -1,19 +1,19 @@
 app:
   name: gvue-scaffold
   mode: debug
-  addr: :8001
+  addr: :3000
 jwt:
   secret: 6a895f1b61d335d9d31b070649c10f1c
   expire_day: 30
 mysql:
   addr: 127.0.0.1:3306
   db: gvue_scaffold
-  user:
-  pwd:
+  user: 
+  pwd: 
 redis:
   addr: 127.0.0.1:6379
   db: 0
-  pwd:
+  pwd: 
 email:
   id:
   secret:

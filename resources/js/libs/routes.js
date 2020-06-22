@@ -12,7 +12,9 @@ const routes = [
     { path: '/user', name: 'user', component: () => import('../pages/User.vue'), meta: { auth: true } },
 ]
 
+let mode = process.env.NODE_ENV == 'production' ? 'history' : 'hash'
 const router = new VueRouter({
+    mode: mode,
     routes: routes
 })
 

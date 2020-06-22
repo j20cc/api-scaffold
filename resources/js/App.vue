@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <MyHeader></MyHeader>
+    <MyHeader v-if="showHeader"></MyHeader>
 
     <transition name="fade" mode="out-in">
       <router-view></router-view>
@@ -19,6 +19,11 @@ export default {
     let user = helper.getUser();
     if (user != null) {
       helper.setUser(user);
+    }
+  },
+  computed: {
+    showHeader() {
+      return this.$route.name != "card";
     }
   },
   components: {

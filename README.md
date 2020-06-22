@@ -6,9 +6,9 @@ GVUE = gin + vue
 
 后端使用 gin + gorm
 
-.env 中的配置优先于 .env.*.yml 文件
+.env 中的配置优先于 config.yml 文件中的配置，`GVUE_` 变量作用于 go，`MIX_` 变量作用于 js
 
-预览地址 [https://gvue.ideaclips.com/](https://gvue.ideaclips.com/)
+预览地址 [https://gvue.ideaclips.com/](https://gvue.ideaclips.com/) 
 
 ## Todo
 
@@ -24,12 +24,11 @@ GVUE = gin + vue
 ```sh
 $ git clone https://github.com/lukedever/gvue-scaffold
 $ cd gvue-scaffold
-$ cp conf.example.yml conf.dev.yml      #修改数据库等配置
-$ cp .env.example .env                  #修改邮件等配置
-$ yarn          #安装前端依赖
-$ yarn prod     #开发时npm run watch
-$ make all      #编译
-$ make run      #运行
+$ cp .env.example .env                  #修改相关配置
+$ yarn                                  #安装前端依赖
+$ yarn prod                             #开发时npm run watch
+$ make                                  #编译
+$ bin/server -f config.yml              #或make run运行
 ```
 
 打开浏览器 [http://localhost:3000](http://localhost:3000)

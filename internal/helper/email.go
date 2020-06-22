@@ -10,6 +10,10 @@ import (
 func SendEmail(to, sub, body string) error {
 	accessKeyId := viper.GetString("email.id")
 	accessKeySecret := viper.GetString("email.secret")
+	if accessKeyId == "" || accessKeySecret == "" {
+		//TODO:记录日志
+		return nil
+	}
 	client, err := dm.NewClientWithAccessKey("cn-hangzhou", accessKeyId, accessKeySecret)
 	if err != nil {
 		return err

@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	cfg          = flag.String("f", "conf.dev.yml", "specified the config file name")
+	cfg          = flag.String("f", "config.yml", "specified the config file name")
 	staticFolder = "./public"
 	indexFile    = "./public/index.html"
 )
@@ -46,9 +46,9 @@ func registerRoutes(r *gin.Engine) {
 	r.POST("/api/password/email", userController.SendResetEmail)
 	r.POST("/api/password/reset", userController.ResetPassword)
 	auth := r.Group("/api", middlewares.Auth())
-	//获取详细信息
 	auth.POST("/verification/email", userController.SendVerifyEmail)
 	auth.POST("/verification", userController.VerifyEmail)
+	//获取详细信息
 	auth.GET("/profile", userController.GetProfile)
 }
 
