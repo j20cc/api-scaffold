@@ -1,6 +1,10 @@
 node_modules
 .vscode
 .idea
+bin
+public/js
+public/css
+public/fonts
 .env
 *.log
 .DS_store
