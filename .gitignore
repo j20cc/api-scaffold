@@ -5,6 +5,7 @@ bin
 public/js
 public/css
 public/fonts
+public/mix-manifest.json
 .env
 *.log
 .DS_store

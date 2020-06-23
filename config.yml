@@ -6,13 +6,13 @@ jwt:
   secret: 6a895f1b61d335d9d31b070649c10f1c
   expire_day: 30
 mysql:
-  addr: 127.0.0.1:3306
-  db: gvue_scaffold
+  addr: 
+  db: 
   user: 
   pwd: 
 redis:
-  addr: 127.0.0.1:6379
-  db: 0
+  addr: 
+  db: 
   pwd: 
 email:
   id:
