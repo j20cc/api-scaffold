@@ -15,11 +15,13 @@ func Auth() gin.HandlerFunc {
 		if header == "" {
 			controllers.ErrResponse(c, http.StatusUnauthorized, errors.New("unauthorized"))
 			c.Abort()
+			return
 		}
 		userId, err := jwt.ParseToken(strings.TrimPrefix(header, "Bearer "))
 		if err != nil || userId == "" {
 			controllers.ErrResponse(c, http.StatusUnauthorized, err)
 			c.Abort()
+			return
 		}
 		c.Set("userId", userId)
 		c.Next()
