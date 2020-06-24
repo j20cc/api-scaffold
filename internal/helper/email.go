@@ -26,7 +26,7 @@ func SendEmail(to, sub, body string) error {
 	request.ReplyToAddress = requests.NewBoolean(false)
 	request.ToAddress = to
 	request.Subject = sub
-	request.FromAlias = viper.GetString("site.name")
+	request.FromAlias = viper.GetString("app.name")
 	request.HtmlBody = body
 
 	response, err := client.SingleSendMail(request)

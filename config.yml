@@ -1,20 +1,3 @@
-app:
-  name: gvue-scaffold
-  mode: debug
-  addr: :3000
 jwt:
   secret: 6a895f1b61d335d9d31b070649c10f1c
   expire_day: 30
-mysql:
-  addr: 
-  db: 
-  user: 
-  pwd: 
-redis:
-  addr: 
-  db: 
-  pwd: 
-email:
-  id:
-  secret:
-  from:
