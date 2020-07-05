@@ -41,6 +41,7 @@ func registerRoutes(r *gin.Engine) {
 	//认证路由
 	r.Use(middlewares.CORS())
 	userController := new(controllers.User)
+	r.POST("/api/demo", userController.Demo)
 	r.POST("/api/register", userController.Register)
 	r.POST("/api/login", userController.Login)
 	r.POST("/api/password/email", userController.SendResetEmail)

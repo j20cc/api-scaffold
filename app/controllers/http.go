@@ -3,9 +3,10 @@ package controllers
 import (
 	"errors"
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
+	"github.com/lukedever/gvue-scaffold/app/validations"
 	"net/http"
 	"strconv"
-	"strings"
 )
 
 var (
@@ -37,10 +38,13 @@ func SuccessResponse(c *gin.Context) {
 }
 
 func ErrResponse(c *gin.Context, code int, err error) {
-	if code == http.StatusUnprocessableEntity {
-		msg := strings.Split(err.Error(), ";")
-		RespondWithJson(c, code, gin.H{"error": msg[0]})
-	} else {
-		RespondWithJson(c, code, gin.H{"error": err.Error()})
+	if errs, ok := err.(validator.ValidationErrors); ok {
+		err := errs[0]
+		locale := c.GetHeader("Accept-Language")
+		translator := validations.GetTranslator(locale)
+		msg := err.Translate(translator)
+		RespondWithJson(c, code, gin.H{"error": msg})
+		return
 	}
+	RespondWithJson(c, code, gin.H{"error": err.Error()})
 }

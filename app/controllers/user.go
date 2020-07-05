@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"errors"
-	"github.com/asaskevich/govalidator"
 	"github.com/gin-gonic/gin"
 	"github.com/lukedever/gvue-scaffold/app/models"
 	"github.com/lukedever/gvue-scaffold/internal/helper"
@@ -11,23 +10,18 @@ import (
 	"time"
 )
 
-type User struct {
-}
+type User struct {}
 
 type registerRequest struct {
-	Name     string `json:"name" valid:"stringlength(6|15)~用户名应该为6-15个字符"`
-	Email    string `json:"email" valid:"required,email~邮箱格式不正确"`
-	Password string `json:"password" valid:"stringlength(6|15)~密码应该为6-15个字符"`
+	Name     string `json:"name" binding:"min=3,max=15"`
+	Email    string `json:"email" binding:"email"`
+	Password string `json:"password" binding:"min=6,max=15"`
 }
 
 //浏览器端注册
 func (u *User) Register(c *gin.Context) {
 	var req registerRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		ErrResponse(c, http.StatusInternalServerError, err)
-		return
-	}
-	if ok, err := govalidator.ValidateStruct(req); !ok {
 		ErrResponse(c, http.StatusUnprocessableEntity, err)
 		return
 	}
@@ -61,18 +55,14 @@ func (u *User) Register(c *gin.Context) {
 }
 
 type loginRequest struct {
-	Email    string `json:"email" valid:"required,email~邮箱格式不正确"`
-	Password string `json:"password" valid:"stringlength(6|15)~密码应该为6-15个字符"`
+	Email    string `json:"email" binding:"email"`
+	Password string `json:"password" binding:"min=6,max=15"`
 }
 
 //登录web端
 func (u *User) Login(c *gin.Context) {
 	var req loginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		ErrResponse(c, http.StatusInternalServerError, err)
-		return
-	}
-	if ok, err := govalidator.ValidateStruct(req); !ok {
 		ErrResponse(c, http.StatusUnprocessableEntity, err)
 		return
 	}
@@ -97,14 +87,10 @@ func (u *User) Login(c *gin.Context) {
 //发送重置密码邮件
 func (u *User) SendResetEmail(c *gin.Context) {
 	var req struct {
-		Email string `json:"email" valid:"required,email~邮箱格式不正确"`
+		Email string `json:"email" binding:"email"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		ErrResponse(c, http.StatusInternalServerError, err)
-		return
-	}
-	if ok, err := govalidator.ValidateStruct(req); !ok {
-		ErrResponse(c, http.StatusUnprocessableEntity, err)
 		return
 	}
 	user, exsist := models.FindUser("email", req.Email)
@@ -120,9 +106,9 @@ func (u *User) SendResetEmail(c *gin.Context) {
 }
 
 type resetPasswordRequest struct {
-	Email    string `json:"email" valid:"required,email~邮箱格式不正确"`
-	Sign     string `json:"sign" valid:"required~链接错误"`
-	Password string `json:"password" valid:"stringlength(6|15)~密码应该为6-15个字符"`
+	Email    string `json:"email" binding:"email"`
+	Sign     string `json:"sign" binding:"required"`
+	Password string `json:"password" binding:"min=6,max=15"`
 }
 
 //重置密码
@@ -130,10 +116,6 @@ func (u *User) ResetPassword(c *gin.Context) {
 	var req resetPasswordRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		ErrResponse(c, http.StatusInternalServerError, err)
-		return
-	}
-	if ok, err := govalidator.ValidateStruct(req); !ok {
-		ErrResponse(c, http.StatusUnprocessableEntity, err)
 		return
 	}
 	user, err := models.DecodeSignUrl("reset", req.Sign)
@@ -196,4 +178,14 @@ func (u *User) GetProfile(c *gin.Context) {
 		return
 	}
 	RespondWithJson(c, http.StatusOK, user)
+}
+
+func (User) Demo(c *gin.Context) {
+	var req struct{
+		Data string `json:"data" binding:"required,hasUser=1111"`
+	}
+	if err := c.ShouldBindJSON(&req);err != nil {
+		ErrResponse(c, http.StatusUnprocessableEntity, err)
+		return
+	}
 }
