@@ -10,19 +10,19 @@ import (
 	"time"
 )
 
-type User struct {}
+type User struct{}
 
 type registerRequest struct {
-	Name     string `json:"name" binding:"min=3,max=15"`
-	Email    string `json:"email" binding:"email"`
-	Password string `json:"password" binding:"min=6,max=15"`
+	Name     string `json:"name" binding:"min=3,max=15" label:"zh=用户名"`
+	Email    string `json:"email" binding:"email" label:"zh=邮箱"`
+	Password string `json:"password" binding:"min=6,max=15" label:"zh=密码"`
 }
 
 //浏览器端注册
 func (u *User) Register(c *gin.Context) {
 	var req registerRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		ErrResponse(c, http.StatusUnprocessableEntity, err)
+		ErrValidateResponse(c, err, req)
 		return
 	}
 	if _, exsist := models.FindUser("name", req.Name); exsist {
@@ -55,15 +55,15 @@ func (u *User) Register(c *gin.Context) {
 }
 
 type loginRequest struct {
-	Email    string `json:"email" binding:"email"`
-	Password string `json:"password" binding:"min=6,max=15"`
+	Email    string `json:"email" binding:"email" label:"zh=邮箱"`
+	Password string `json:"password" binding:"min=6,max=15" label:"zh=密码"`
 }
 
 //登录web端
 func (u *User) Login(c *gin.Context) {
 	var req loginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		ErrResponse(c, http.StatusUnprocessableEntity, err)
+		ErrValidateResponse(c, err, req)
 		return
 	}
 	user, exsist := models.FindUser("email", req.Email)
@@ -87,10 +87,10 @@ func (u *User) Login(c *gin.Context) {
 //发送重置密码邮件
 func (u *User) SendResetEmail(c *gin.Context) {
 	var req struct {
-		Email string `json:"email" binding:"email"`
+		Email string `json:"email" binding:"email" label:"zh=邮箱"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		ErrResponse(c, http.StatusInternalServerError, err)
+		ErrValidateResponse(c, err, req)
 		return
 	}
 	user, exsist := models.FindUser("email", req.Email)
@@ -106,16 +106,16 @@ func (u *User) SendResetEmail(c *gin.Context) {
 }
 
 type resetPasswordRequest struct {
-	Email    string `json:"email" binding:"email"`
-	Sign     string `json:"sign" binding:"required"`
-	Password string `json:"password" binding:"min=6,max=15"`
+	Email    string `json:"email" binding:"email" label:"zh=邮箱"`
+	Sign     string `json:"sign" binding:"required" label:"zh=签名"`
+	Password string `json:"password" binding:"min=6,max=15" label:"zh=密码"`
 }
 
 //重置密码
 func (u *User) ResetPassword(c *gin.Context) {
 	var req resetPasswordRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		ErrResponse(c, http.StatusInternalServerError, err)
+		ErrValidateResponse(c, err, req)
 		return
 	}
 	user, err := models.DecodeSignUrl("reset", req.Sign)
@@ -152,10 +152,10 @@ func (u *User) SendVerifyEmail(c *gin.Context) {
 //验证邮箱
 func (u *User) VerifyEmail(c *gin.Context) {
 	var req struct {
-		Sign string `json:"sign" binding:"required"`
+		Sign string `json:"sign" binding:"required" label:"zh=签名"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		ErrResponse(c, http.StatusBadRequest, errors.New("链接错误"))
+		ErrValidateResponse(c, err, req)
 		return
 	}
 	user, err := models.DecodeSignUrl("verify", req.Sign)
@@ -181,11 +181,11 @@ func (u *User) GetProfile(c *gin.Context) {
 }
 
 func (User) Demo(c *gin.Context) {
-	var req struct{
-		Data string `json:"data" binding:"required,hasUser=1111"`
+	var req struct {
+		Data string `json:"data" binding:"required,hasUser=1111" label:"zh=数据"`
 	}
-	if err := c.ShouldBindJSON(&req);err != nil {
-		ErrResponse(c, http.StatusUnprocessableEntity, err)
+	if err := c.ShouldBindJSON(&req); err != nil {
+		ErrValidateResponse(c, err, req)
 		return
 	}
 }
