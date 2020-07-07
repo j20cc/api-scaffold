@@ -6,7 +6,7 @@ GVUE = gin + vue
 
 后端使用 gin + gorm
 
-.env 中的配置优先于 config.yml 文件中的配置，`GVUE_` 变量作用于 go，`MIX_` 变量作用于 js
+.env 中的配置优先于 config.yml 文件中的配置，比如 .env 文件中的 `GVUE_APP_ADDR` 优先于 config.yml 文件中的 `app.addr`，`GVUE_` 变量作用于 go，`MIX_` 变量作用于 js
 
 预览地址 [https://gvue.ideaclips.com/](https://gvue.ideaclips.com/) 
 

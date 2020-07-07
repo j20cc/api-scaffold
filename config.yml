@@ -1,3 +1,5 @@
+app:
+  addr: :8001
 jwt:
   secret: 6a895f1b61d335d9d31b070649c10f1c
   expire_day: 30
