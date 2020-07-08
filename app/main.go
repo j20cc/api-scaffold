@@ -67,4 +67,7 @@ func initConfig(file string) {
 		panic(err)
 	}
 	//TODO:检查必要的配置
+	if viper.GetString("app.locale") == "" {
+		viper.SetDefault("app.locale", "zh")
+	}
 }

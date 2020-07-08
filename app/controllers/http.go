@@ -2,11 +2,14 @@ package controllers
 
 import (
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/lukedever/gvue-scaffold/app/validations"
+	"github.com/spf13/viper"
 	"net/http"
 	"reflect"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -51,39 +54,43 @@ func ErrValidateResponse(c *gin.Context, err error, st interface{}) {
 		ErrResponse(c, code, defaultErr)
 		return
 	}
-	e := errs[0]
-	locale := c.GetHeader("Accept-Language")
-	translator := validations.GetTranslator(locale)
-	//先使用翻译，但是得到'name是必填的'，想要'姓名是必填的'
-	msg := e.Translate(translator)
 	t := reflect.TypeOf(st)
 	if t.Kind().String() != "struct" {
 		ErrResponse(c, code, defaultErr)
 		return
 	}
+
+	locale := c.GetHeader("Accept-Language")
+	fmt.Println(locale)
+	if locale == "" {
+		locale = viper.GetString("app.locale")
+	}
+	translator := validations.GetTranslator(locale)
+	errMsg := make(map[string]string, len(errs))
+	//先使用翻译，但是得到'name是必填的'，想要'姓名是必填的'
+	for _, e := range errs {
+		errMsg[e.Field()] = e.Translate(translator)
+	}
 	//取出label的tag根据locale替换
-	for i := 0; i < t.NumField(); i++ {
-		if t.Field(i).Name == e.StructField() {
-			labels := t.Field(i).Tag.Get("label")
-			tags := strings.Split(labels, ",")
-			m := make(map[string]string, len(tags))
-			for _, tag := range tags {
-				i := strings.Split(tag, "=")
-				if len(i) == 2 {
-					m[i[0]] = i[1]
+	pattern := regexp.MustCompile(locale + "=([^,\\s]*)")
+	for f, m := range errMsg {
+		for i := 0; i < t.NumField(); i++ {
+			jsonTag := t.Field(i).Tag.Get("json")
+			if jsonTag == f {
+				//"en=aaaa,zh=数据,fr=bbbb"
+				labels := t.Field(i).Tag.Get("label")
+				matches := pattern.FindAllStringSubmatch(labels, -1)
+				fmt.Println(labels, matches, locale)
+				if len(matches) == 0 || len(matches[0]) < 2 {
+					continue
 				}
-			}
-			if name, ok := m[locale]; ok {
-				msg = strings.ReplaceAll(msg, t.Field(i).Tag.Get("json"), name)
-				ErrResponse(c, code, errors.New(msg))
-				return
-			}
-			if locale == "en" {
-				ErrResponse(c, code, errors.New(msg))
-				return
+				name := matches[0][1]
+				m = strings.ReplaceAll(m, jsonTag, name)
+				errMsg[f] = m
 			}
 		}
 	}
-	ErrResponse(c, code, defaultErr)
-	return
+	RespondWithJson(c, http.StatusUnprocessableEntity, gin.H{
+		"error": errMsg,
+	})
 }

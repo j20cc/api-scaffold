@@ -23,6 +23,7 @@ let httpCode = {
 }
 
 instance.interceptors.request.use(config => {
+  config.headers['Accept-Language'] = "zh"
   let user = store.state.user
   if (user != null) {
     config.headers['Authorization'] = "Bearer " + user.token
@@ -44,9 +45,13 @@ instance.interceptors.response.use(response => {
   loadingInstance.close()
   if (error.response) {
     let tips = error.response.status in httpCode ? httpCode[error.response.status] : error.response.data.error
+    if (error.response.status === 422) {
+      errs = error.response.data.error
+      tips = errs[Object.keys(errs)[0]]
+    }
     Notification.error({
       title: '错误',
-      message: error.response.data.error || tips
+      message: tips
     });
     if (error.response.status === 401) {
       helper.removeUser()
