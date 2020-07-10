@@ -46,8 +46,10 @@ instance.interceptors.response.use(response => {
   if (error.response) {
     let tips = error.response.status in httpCode ? httpCode[error.response.status] : error.response.data.error
     if (error.response.status === 422) {
-      errs = error.response.data.error
-      tips = errs[Object.keys(errs)[0]]
+      let errs = error.response.data.error
+      if (Object.prototype.toString.call(errs) === '[Object Object]') {
+        tips = errs[Object.keys(errs)[0]]
+      }
     }
     Notification.error({
       title: '错误',
