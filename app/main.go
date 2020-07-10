@@ -2,10 +2,13 @@ package main
 
 import (
 	"flag"
+	"strings"
+
 	"github.com/lukedever/gvue-scaffold/app/controllers"
 	"github.com/lukedever/gvue-scaffold/app/middlewares"
 	"github.com/lukedever/gvue-scaffold/app/models"
-	"strings"
+	"github.com/lukedever/gvue-scaffold/internal/log"
+	"go.uber.org/zap"
 
 	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
@@ -23,6 +26,8 @@ func main() {
 	flag.Parse()
 	//初始化配置
 	initConfig(*cfg)
+	//初始化日志
+	log.NewLogger()
 	//初始化db
 	models.InitDB()
 
@@ -31,6 +36,8 @@ func main() {
 	gin.SetMode(runMode)
 	r := gin.Default()
 	registerRoutes(r)
+
+	log.Info("app in running", zap.String("addr", runAddr))
 	_ = r.Run(runAddr)
 }
 

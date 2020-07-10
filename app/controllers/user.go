@@ -2,14 +2,16 @@ package controllers
 
 import (
 	"errors"
+	"net/http"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"github.com/lukedever/gvue-scaffold/app/models"
 	"github.com/lukedever/gvue-scaffold/internal/helper"
 	"github.com/lukedever/gvue-scaffold/internal/jwt"
-	"net/http"
-	"time"
 )
 
+// User controller
 type User struct{}
 
 type registerRequest struct {
@@ -18,7 +20,7 @@ type registerRequest struct {
 	Password string `json:"password" binding:"min=6,max=15" label:"zh=密码"`
 }
 
-//浏览器端注册
+// Register user action
 func (u *User) Register(c *gin.Context) {
 	var req registerRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -51,7 +53,7 @@ func (u *User) Register(c *gin.Context) {
 		ErrResponse(c, http.StatusInternalServerError, err)
 		return
 	}
-	RespondWithJson(c, http.StatusOK, user)
+	RespondWithJSON(c, http.StatusOK, user)
 }
 
 type loginRequest struct {
@@ -59,7 +61,7 @@ type loginRequest struct {
 	Password string `json:"password" binding:"min=6,max=15" label:"zh=密码"`
 }
 
-//登录web端
+// Login action
 func (u *User) Login(c *gin.Context) {
 	var req loginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -81,10 +83,10 @@ func (u *User) Login(c *gin.Context) {
 		ErrResponse(c, http.StatusInternalServerError, err)
 		return
 	}
-	RespondWithJson(c, http.StatusOK, user)
+	RespondWithJSON(c, http.StatusOK, user)
 }
 
-//发送重置密码邮件
+// SendResetEmail send reset password email
 func (u *User) SendResetEmail(c *gin.Context) {
 	var req struct {
 		Email string `json:"email" binding:"email" label:"zh=邮箱"`
@@ -111,7 +113,7 @@ type resetPasswordRequest struct {
 	Password string `json:"password" binding:"min=6,max=15" label:"zh=密码"`
 }
 
-//重置密码
+// ResetPassword reset password action
 func (u *User) ResetPassword(c *gin.Context) {
 	var req resetPasswordRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -135,7 +137,7 @@ func (u *User) ResetPassword(c *gin.Context) {
 	SuccessResponse(c)
 }
 
-//发送确认邮箱的邮件
+// SendVerifyEmail send verify email action
 func (u *User) SendVerifyEmail(c *gin.Context) {
 	user, exists := models.FindUser("id", c.GetString("userId"))
 	if !exists {
@@ -149,7 +151,7 @@ func (u *User) SendVerifyEmail(c *gin.Context) {
 	SuccessResponse(c)
 }
 
-//验证邮箱
+// VerifyEmail action
 func (u *User) VerifyEmail(c *gin.Context) {
 	var req struct {
 		Sign string `json:"sign" binding:"required" label:"zh=签名"`
@@ -170,16 +172,17 @@ func (u *User) VerifyEmail(c *gin.Context) {
 	SuccessResponse(c)
 }
 
-//获取详细信息
+// GetProfile get login user profile
 func (u *User) GetProfile(c *gin.Context) {
 	user, exists := models.FindUser("id", c.GetString("userId"))
 	if !exists {
 		ErrResponse(c, http.StatusUnauthorized, errModelNotFound)
 		return
 	}
-	RespondWithJson(c, http.StatusOK, user)
+	RespondWithJSON(c, http.StatusOK, user)
 }
 
+// Demo action
 func (User) Demo(c *gin.Context) {
 	var req struct {
 		Data string `json:"data" binding:"required,hasUser=1111" label:"zh=数据"`

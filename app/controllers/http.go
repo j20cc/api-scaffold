@@ -3,15 +3,16 @@ package controllers
 import (
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
-	"github.com/lukedever/gvue-scaffold/app/validations"
-	"github.com/spf13/viper"
 	"net/http"
 	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
+	"github.com/lukedever/gvue-scaffold/app/validations"
+	"github.com/spf13/viper"
 )
 
 var (
@@ -34,18 +35,22 @@ func getQueryPageSize(c *gin.Context) (int, int) {
 	return p, s
 }
 
-func RespondWithJson(c *gin.Context, code int, data interface{}) {
+// RespondWithJSON respond data with json
+func RespondWithJSON(c *gin.Context, code int, data interface{}) {
 	c.JSON(code, data)
 }
 
+// SuccessResponse quickly response success message
 func SuccessResponse(c *gin.Context) {
-	RespondWithJson(c, http.StatusOK, gin.H{"message": "success"})
+	RespondWithJSON(c, http.StatusOK, gin.H{"message": "success"})
 }
 
+// ErrResponse return error message
 func ErrResponse(c *gin.Context, code int, err error) {
-	RespondWithJson(c, code, gin.H{"error": err.Error()})
+	RespondWithJSON(c, code, gin.H{"error": err.Error()})
 }
 
+// ErrValidateResponse return validation message
 func ErrValidateResponse(c *gin.Context, err error, st interface{}) {
 	code := http.StatusUnprocessableEntity
 	defaultErr := errors.New("验证失败")
@@ -90,7 +95,7 @@ func ErrValidateResponse(c *gin.Context, err error, st interface{}) {
 			}
 		}
 	}
-	RespondWithJson(c, http.StatusUnprocessableEntity, gin.H{
+	RespondWithJSON(c, http.StatusUnprocessableEntity, gin.H{
 		"error": errMsg,
 	})
 }

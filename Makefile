@@ -1,6 +1,6 @@
 BINARY_NAME=server
 
-all: fmt build
+all: fmt prod build
 
 build:
 	go build -o bin/$(BINARY_NAME) -v app/main.go
@@ -13,3 +13,6 @@ clean:
 
 fmt:
 	go fmt ./...
+
+prod:
+	npm run prod
