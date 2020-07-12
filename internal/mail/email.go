@@ -86,7 +86,7 @@ func GetSignedUrl(email string, t SendMailType) (string, error) {
 	return myurl.String(), nil
 }
 
-func DecodeSignUrl(t SendMailType, sign string)  (string, error) {
+func DecodeSignUrl(t SendMailType, sign string) (string, error) {
 	if t != Reset && t != Verify {
 		return "", errors.New("链接错误")
 	}

@@ -97,14 +97,15 @@ func (u *User) SendResetEmail(c *gin.Context) {
 		return
 	}
 	user, exists := models.FindUser("email", req.Email)
-	if !exists {
-		ErrResponse(c, http.StatusUnprocessableEntity, errors.New("该邮箱未注册"))
-		return
-	}
 	if err := user.SendResetEmail(); err != nil {
 		ErrResponse(c, http.StatusInternalServerError, err)
 		return
 	}
+	if !exists {
+		ErrResponse(c, http.StatusUnprocessableEntity, errors.New("该邮箱未注册"))
+		return
+	}
+
 	SuccessResponse(c)
 }
 
@@ -123,12 +124,12 @@ func (u *User) ResetPassword(c *gin.Context) {
 	}
 	signed, err := mail.DecodeSignUrl(mail.Reset, req.Sign)
 	user, exists := models.FindUser("email", signed)
-	if !exists {
-		ErrResponse(c, http.StatusBadRequest, errors.New("User does not exist "))
-		return
-	}
 	if err != nil {
 		ErrResponse(c, http.StatusBadRequest, err)
+		return
+	}
+	if !exists {
+		ErrResponse(c, http.StatusBadRequest, errors.New("User does not exist "))
 		return
 	}
 	if user.Email != req.Email {
@@ -146,12 +147,12 @@ func (u *User) ResetPassword(c *gin.Context) {
 // SendVerifyEmail send verify email action
 func (u *User) SendVerifyEmail(c *gin.Context) {
 	user, exists := models.FindUser("id", c.GetString("userId"))
-	if !exists {
-		ErrResponse(c, http.StatusUnauthorized, errModelNotFound)
-		return
-	}
 	if err := user.SendVerifyEmail(); err != nil {
 		ErrResponse(c, http.StatusInternalServerError, err)
+		return
+	}
+	if !exists {
+		ErrResponse(c, http.StatusUnauthorized, errModelNotFound)
 		return
 	}
 	SuccessResponse(c)
@@ -167,13 +168,13 @@ func (u *User) VerifyEmail(c *gin.Context) {
 		return
 	}
 	signed, err := mail.DecodeSignUrl(mail.Verify, req.Sign)
+	if err != nil {
+		ErrResponse(c, http.StatusInternalServerError, err)
+		return
+	}
 	user, exists := models.FindUser("email", signed)
 	if !exists {
 		ErrResponse(c, http.StatusBadRequest, errors.New("User does not exist "))
-		return
-	}
-	if err != nil {
-		ErrResponse(c, http.StatusInternalServerError, err)
 		return
 	}
 	t := time.Now()
