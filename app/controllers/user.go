@@ -9,6 +9,7 @@ import (
 	"github.com/lukedever/gvue-scaffold/app/models"
 	"github.com/lukedever/gvue-scaffold/internal/helper"
 	"github.com/lukedever/gvue-scaffold/internal/jwt"
+	"github.com/lukedever/gvue-scaffold/internal/mail"
 )
 
 // User controller
@@ -27,11 +28,11 @@ func (u *User) Register(c *gin.Context) {
 		ErrValidateResponse(c, err, req)
 		return
 	}
-	if _, exsist := models.FindUser("name", req.Name); exsist {
+	if _, exists := models.FindUser("name", req.Name); exists {
 		ErrResponse(c, http.StatusUnprocessableEntity, errors.New("该用户已存在"))
 		return
 	}
-	if _, exsist := models.FindUser("email", req.Email); exsist {
+	if _, exists := models.FindUser("email", req.Email); exists {
 		ErrResponse(c, http.StatusUnprocessableEntity, errors.New("该邮箱已被注册"))
 		return
 	}
@@ -68,8 +69,8 @@ func (u *User) Login(c *gin.Context) {
 		ErrValidateResponse(c, err, req)
 		return
 	}
-	user, exsist := models.FindUser("email", req.Email)
-	if !exsist {
+	user, exists := models.FindUser("email", req.Email)
+	if !exists {
 		ErrResponse(c, http.StatusUnprocessableEntity, errors.New("该邮箱用户不存在"))
 		return
 	}
@@ -95,8 +96,8 @@ func (u *User) SendResetEmail(c *gin.Context) {
 		ErrValidateResponse(c, err, req)
 		return
 	}
-	user, exsist := models.FindUser("email", req.Email)
-	if !exsist {
+	user, exists := models.FindUser("email", req.Email)
+	if !exists {
 		ErrResponse(c, http.StatusUnprocessableEntity, errors.New("该邮箱未注册"))
 		return
 	}
@@ -120,7 +121,12 @@ func (u *User) ResetPassword(c *gin.Context) {
 		ErrValidateResponse(c, err, req)
 		return
 	}
-	user, err := models.DecodeSignUrl("reset", req.Sign)
+	signed, err := mail.DecodeSignUrl(mail.Reset, req.Sign)
+	user, exists := models.FindUser("email", signed)
+	if !exists {
+		ErrResponse(c, http.StatusBadRequest, errors.New("User does not exist "))
+		return
+	}
 	if err != nil {
 		ErrResponse(c, http.StatusBadRequest, err)
 		return
@@ -160,7 +166,12 @@ func (u *User) VerifyEmail(c *gin.Context) {
 		ErrValidateResponse(c, err, req)
 		return
 	}
-	user, err := models.DecodeSignUrl("verify", req.Sign)
+	signed, err := mail.DecodeSignUrl(mail.Verify, req.Sign)
+	user, exists := models.FindUser("email", signed)
+	if !exists {
+		ErrResponse(c, http.StatusBadRequest, errors.New("User does not exist "))
+		return
+	}
 	if err != nil {
 		ErrResponse(c, http.StatusInternalServerError, err)
 		return

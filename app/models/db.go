@@ -12,8 +12,8 @@ import (
 )
 
 var (
-	mysqlCli *gorm.DB
-	redisCli *redis.Client
+	MysqlCli *gorm.DB
+	RedisCli *redis.Client
 	err      error
 )
 
@@ -30,13 +30,13 @@ func InitDB() {
 }
 
 func initRedis() {
-	redisCli = redis.NewClient(&redis.Options{
+	RedisCli = redis.NewClient(&redis.Options{
 		Addr:     viper.GetString("redis.addr"),
 		Password: viper.GetString("redis.pwd"),
 		DB:       viper.GetInt("redis.db"),
 	})
 
-	_, err := redisCli.Ping(context.Background()).Result()
+	_, err := RedisCli.Ping(context.Background()).Result()
 	if err != nil {
 		panic(err)
 	}
@@ -45,7 +45,7 @@ func initRedis() {
 var dsn = "%s:%s@tcp(%s)/%s?charset=utf8&parseTime=True&loc=Local"
 
 func initMysql() {
-	mysqlCli, err = gorm.Open("mysql", fmt.Sprintf(dsn,
+	MysqlCli, err = gorm.Open("mysql", fmt.Sprintf(dsn,
 		viper.GetString("mysql.user"),
 		viper.GetString("mysql.pwd"),
 		viper.GetString("mysql.addr"),
@@ -55,5 +55,5 @@ func initMysql() {
 	}
 	//defer DB.Close()
 
-	mysqlCli.AutoMigrate(&User{})
+	MysqlCli.AutoMigrate(&User{})
 }
