@@ -4,7 +4,7 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/lukedever/gvue-scaffold/app/controllers"
-	"github.com/lukedever/gvue-scaffold/internal/jwt"
+	"github.com/lukedever/gvue-scaffold/internal/helper"
 	"net/http"
 	"strings"
 )
@@ -17,7 +17,7 @@ func Auth() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		userId, err := jwt.ParseToken(strings.TrimPrefix(header, "Bearer "))
+		userId, err := helper.ParseToken(strings.TrimPrefix(header, "Bearer "))
 		if err != nil || userId == "" {
 			controllers.ErrResponse(c, http.StatusUnauthorized, err)
 			c.Abort()

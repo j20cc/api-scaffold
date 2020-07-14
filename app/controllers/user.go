@@ -8,7 +8,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/lukedever/gvue-scaffold/app/models"
 	"github.com/lukedever/gvue-scaffold/internal/helper"
-	"github.com/lukedever/gvue-scaffold/internal/jwt"
 )
 
 // User controller
@@ -47,7 +46,7 @@ func (u *User) Register(c *gin.Context) {
 	//发送欢迎邮件
 	go user.SendWelcomeEmail()
 	//设置token
-	token, _ := jwt.BuildToken(user.ID)
+	token, _ := helper.BuildToken(user.ID)
 	user.Token = token
 	if err := user.Save(); err != nil {
 		ErrResponse(c, http.StatusInternalServerError, err)
@@ -77,7 +76,7 @@ func (u *User) Login(c *gin.Context) {
 		ErrResponse(c, http.StatusUnprocessableEntity, errors.New("密码不正确"))
 		return
 	}
-	token, _ := jwt.BuildToken(user.ID)
+	token, _ := helper.BuildToken(user.ID)
 	user.Token = token
 	if err := user.Save(); err != nil {
 		ErrResponse(c, http.StatusInternalServerError, err)

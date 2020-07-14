@@ -1,8 +1,14 @@
 package main
 
 import (
+	"context"
 	"flag"
+	"net/http"
+	"os"
+	"os/signal"
 	"strings"
+	"syscall"
+	"time"
 
 	"github.com/lukedever/gvue-scaffold/app/controllers"
 	"github.com/lukedever/gvue-scaffold/app/middlewares"
@@ -34,11 +40,36 @@ func main() {
 	runMode := viper.GetString("app.mode")
 	runAddr := viper.GetString("app.addr")
 	gin.SetMode(runMode)
-	r := gin.Default()
-	registerRoutes(r)
-
-	log.Info("app in running", zap.String("addr", runAddr))
-	_ = r.Run(runAddr)
+	router := gin.Default()
+	//注册路由
+	registerRoutes(router)
+	log.Info("app is running", zap.String("addr", runAddr))
+	srv := &http.Server{
+		Addr:           runAddr,
+		Handler:        router,
+		ReadTimeout:    10 * time.Second,
+		WriteTimeout:   10 * time.Second,
+		MaxHeaderBytes: 1 << 20,
+	}
+	go func() {
+		if err := srv.ListenAndServe(); err != nil {
+			log.Error("err occurred at app starting...", zap.Error(err))
+			panic(err)
+		}
+	}()
+	quit := make(chan os.Signal)
+	// kill (no param) default send syscall.SIGTERM
+	// kill -2 is syscall.SIGINT
+	// kill -9 is syscall.SIGKILL but can't be catch, so don't need add it
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	log.Info("Shutting down server...")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Error("Server forced to shutdown:", zap.Error(err))
+	}
+	log.Error("Server exiting")
 }
 
 func registerRoutes(r *gin.Engine) {

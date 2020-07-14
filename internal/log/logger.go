@@ -9,10 +9,23 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
-var logger *zap.Logger
+var l *logger
+
+type logger struct {
+	engine *zap.Logger
+	mode   string
+}
 
 // NewLogger init logger
 func NewLogger() {
+	if l != nil {
+		return
+	}
+
+	l = &logger{
+		mode: viper.GetString("app.mode"),
+	}
+	// zap hook
 	hook := lumberjack.Logger{
 		Filename:   "logs/server.log",               // 日志文件路径
 		MaxSize:    viper.GetInt("log.max_size"),    // 每个日志文件保存的最大尺寸 单位：M
@@ -20,7 +33,7 @@ func NewLogger() {
 		MaxAge:     viper.GetInt("log.max_age"),     // 文件最多保存多少天
 		Compress:   true,                            // 是否压缩
 	}
-
+	// zap encoderConfig
 	encoderConfig := zapcore.EncoderConfig{
 		TimeKey:        "time",
 		LevelKey:       "level",
@@ -34,12 +47,11 @@ func NewLogger() {
 		EncodeCaller:   zapcore.ShortCallerEncoder,     // 全路径编码器
 		EncodeName:     zapcore.FullNameEncoder,
 	}
-
 	// 设置日志级别
 	atomicLevel := zap.NewAtomicLevel()
-	atomicLevel.UnmarshalText([]byte(viper.GetString("log.level")))
+	_ = atomicLevel.UnmarshalText([]byte(viper.GetString("log.level")))
 	var w zapcore.WriteSyncer
-	if viper.GetString("app.mode") == "debug" {
+	if l.mode == "debug" {
 		w = zapcore.AddSync(os.Stdout)
 	} else {
 		w = zapcore.AddSync(&hook)
@@ -54,25 +66,25 @@ func NewLogger() {
 	// 设置初始化字段
 	filed := zap.Fields(zap.String("serviceName", viper.GetString("app.name")))
 	// 构造日志
-	logger = zap.New(core, zap.AddCaller(), zap.AddStacktrace(zap.ErrorLevel), development, filed)
+	l.engine = zap.New(core, zap.AddCaller(), zap.AddStacktrace(zap.ErrorLevel), development, filed)
 }
 
 // Debug log
 func Debug(msg string, fields ...zap.Field) {
-	logger.Debug(msg, fields...)
+	l.engine.Debug(msg, fields...)
 }
 
 // Info log
 func Info(msg string, fields ...zap.Field) {
-	logger.Info(msg, fields...)
+	l.engine.Info(msg, fields...)
 }
 
 // Warn log
 func Warn(msg string, fields ...zap.Field) {
-	logger.Warn(msg, fields...)
+	l.engine.Warn(msg, fields...)
 }
 
 // Error log
 func Error(msg string, fields ...zap.Field) {
-	logger.Error(msg, fields...)
+	l.engine.Error(msg, fields...)
 }
