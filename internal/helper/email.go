@@ -8,15 +8,16 @@ import (
 	"go.uber.org/zap"
 )
 
+// SendEmail send a email
 func SendEmail(to, sub, body string) error {
-	accessKeyId := viper.GetString("email.id")
+	accessKeyID := viper.GetString("email.id")
 	accessKeySecret := viper.GetString("email.secret")
-	if accessKeyId == "" || accessKeySecret == "" {
+	if accessKeyID == "" || accessKeySecret == "" {
 		//TODO:记录日志
 		log.Warn("email key is empty")
 		return nil
 	}
-	client, err := dm.NewClientWithAccessKey("cn-hangzhou", accessKeyId, accessKeySecret)
+	client, err := dm.NewClientWithAccessKey("cn-hangzhou", accessKeyID, accessKeySecret)
 	if err != nil {
 		return err
 	}
@@ -24,7 +25,6 @@ func SendEmail(to, sub, body string) error {
 	request.Scheme = "https"
 	request.AccountName = viper.GetString("email.from")
 	request.AddressType = requests.NewInteger(1)
-	request.ReplyToAddress = requests.NewBoolean(false)
 	request.ToAddress = to
 	request.Subject = sub
 	request.FromAlias = viper.GetString("app.name")
