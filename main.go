@@ -23,7 +23,7 @@ import (
 )
 
 var (
-	cfg          = flag.String("f", "config.yml", "specified the config file name")
+	cfg          = flag.String("f", "etc/config.yml", "specified the config file name")
 	staticFolder = "./public"
 	indexFile    = "./public/index.html"
 )
@@ -92,6 +92,9 @@ func registerRoutes(r *gin.Engine) {
 }
 
 func initConfig(file string) {
+	if _, err := os.Stat(".env"); os.IsNotExist(err) {
+		panic(".env file is not exists")
+	}
 	_ = godotenv.Load()
 
 	viper.AutomaticEnv()

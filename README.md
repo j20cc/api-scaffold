@@ -35,16 +35,11 @@ $ bin/server -f config.yml              #或make run运行
 
 打开浏览器 [http://localhost:3000](http://localhost:3000)
 
-## 如何修改项目名
-
-克隆到指定目录
+## 使用脚本创建
 
 ```sh
-$ git clone https://github.com/lukedever/gvue-scaffold yourpath
-```
-
-sed 批量替换
-
-```sh
-$ sed -i 's/lukedever\/gvue-scaffold/yourname\/yourpath/g' `grep -rl gvue-scaffold yourpath/`
+$ wget https://raw.githubusercontent.com/lukedever/gvue-scaffold/master/etc/new.sh
+$ ./new.sh
+please enter your name [default name]: yourname
+please enter your project name: your_project
 ```

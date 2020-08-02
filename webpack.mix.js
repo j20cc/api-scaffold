@@ -7,7 +7,7 @@ mix.js('resources/js/app.js', 'js')
   .sass('resources/scss/app.scss', 'css')
   .options({
     processCssUrls: false,
-    postCss: [tailwindcss('./tailwind.config.js')],
+    postCss: [tailwindcss('./etc/tailwind.config.js')],
   })
 
 mix.webpackConfig({
