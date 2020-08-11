@@ -36,4 +36,7 @@ sed -i "s/gvue-scaffold/$name/g" `grep -rl gvue-scaffold $name/`
 #删除git
 rm -rf $name/.git
 
-echo "create project success!"
+#新建.env
+cd $name && cp .env.example .env
+
+echo "create project success! run yarn to install node_modules"

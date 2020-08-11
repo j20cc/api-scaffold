@@ -30,7 +30,7 @@ $ cp .env.example .env                  #修改相关配置
 $ yarn                                  #安装前端依赖
 $ yarn prod                             #开发时npm run watch
 $ make                                  #编译
-$ bin/server -f config.yml              #或make run运行
+$ bin/server -f etc/config.yml              #或make run运行
 ```
 
 打开浏览器 [http://localhost:3000](http://localhost:3000)
@@ -40,6 +40,6 @@ $ bin/server -f config.yml              #或make run运行
 ```sh
 $ wget https://raw.githubusercontent.com/lukedever/gvue-scaffold/master/etc/new.sh
 $ ./new.sh
-please enter your name [default name]: yourname
+please enter your name [default git_config_name]: your_name
 please enter your project name: your_project
 ```
