@@ -44,6 +44,8 @@ if [ "$ui" = false ]; then
     echo "remove ui code..."
     # sed -i '/controllers"$/d' $name/main.go
     sed -i '/.*userController.*/d' $name/main.go
+    sed -i '/.*auth.*/d' $name/main.go
+    sed -i '/&User{}/d' $name/app/models/db.go
     rm $name/app/controllers/user.go $name/app/models/user.go
     rm -rf $name/resources/js/pages/auth
     sed -i '/.*pages\/auth.*/d' $name/resources/js/libs/routes.js
