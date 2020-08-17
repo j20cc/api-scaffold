@@ -43,7 +43,7 @@
 </template>
 
 <script>
-import CopyRight from "../components/CopyRight";
+import CopyRight from "../../components/CopyRight";
 
 export default {
   name: "Login",

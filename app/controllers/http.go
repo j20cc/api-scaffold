@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"reflect"
 	"regexp"
@@ -19,6 +18,17 @@ var (
 	errModelNotFound = errors.New("model not found")
 	defaultPageSize  = 15
 )
+
+// Controller base controller
+type Controller struct {
+}
+
+// Hello api
+func (Controller) Hello(c *gin.Context) {
+	RespondWithJSON(c, http.StatusOK, gin.H{
+		"message": "hello world!",
+	})
+}
 
 func getQueryPageSize(c *gin.Context) (int, int) {
 	page := c.DefaultQuery("page", "1")
@@ -66,7 +76,6 @@ func ErrValidateResponse(c *gin.Context, err error, st interface{}) {
 	}
 
 	locale := c.GetHeader("Accept-Language")
-	fmt.Println(locale)
 	if locale == "" {
 		locale = viper.GetString("app.locale")
 	}
@@ -85,7 +94,6 @@ func ErrValidateResponse(c *gin.Context, err error, st interface{}) {
 				//"en=aaaa,zh=数据,fr=bbbb"
 				labels := t.Field(i).Tag.Get("label")
 				matches := pattern.FindAllStringSubmatch(labels, -1)
-				fmt.Println(labels, matches, locale)
 				if len(matches) == 0 || len(matches[0]) < 2 {
 					continue
 				}

@@ -20,6 +20,12 @@ if [ "$name" == "" ]; then
     exit 1
 fi
 
+#是否需要ui
+read -p "do you need auth ui y/n? [default y]: " ui
+if [ "$ui" == "n" ]; then
+    ui=false
+fi
+
 #克隆项目
 if git clone https://github.com/lukedever/gvue-scaffold $name; then
     echo "clone project success"
@@ -29,9 +35,19 @@ else
 fi
 
 #替换代码
-echo "replace code ..."
+echo "replace code..."
 sed -i "s/lukedever\/gvue-scaffold/$user\/$name/g" `grep -rl gvue-scaffold $name/`
 sed -i "s/gvue-scaffold/$name/g" `grep -rl gvue-scaffold $name/`
+
+#删除前端
+if [ "$ui" = false ]; then
+    echo "remove ui code..."
+    # sed -i '/controllers"$/d' $name/main.go
+    sed -i '/.*userController.*/d' $name/main.go
+    rm $name/app/controllers/user.go $name/app/models/user.go
+    rm -rf $name/resources/js/pages/auth
+    sed -i '/.*pages\/auth.*/d' $name/resources/js/libs/routes.js
+fi
 
 #删除git
 rm -rf $name/.git

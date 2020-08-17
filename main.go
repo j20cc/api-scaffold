@@ -43,7 +43,6 @@ func main() {
 	router := gin.Default()
 	//注册路由
 	registerRoutes(router)
-	log.Info("app is running", zap.String("addr", runAddr))
 	srv := &http.Server{
 		Addr:           runAddr,
 		Handler:        router,
@@ -57,6 +56,7 @@ func main() {
 			panic(err)
 		}
 	}()
+	log.Info("app is running...", zap.String("addr", runAddr))
 	quit := make(chan os.Signal)
 	// kill (no param) default send syscall.SIGTERM
 	// kill -2 is syscall.SIGINT
@@ -69,17 +69,19 @@ func main() {
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Error("Server forced to shutdown:", zap.Error(err))
 	}
-	log.Error("Server exiting")
+	log.Error("Server exited")
 }
 
 func registerRoutes(r *gin.Engine) {
 	//前端
 	r.Use(static.Serve("/", static.LocalFile(staticFolder, true)))
 	r.LoadHTMLGlob(indexFile)
-	//认证路由
+	//跨域
 	r.Use(middlewares.CORS())
+	//注册路由
+	baseController := new(controllers.Controller)
+	r.POST("/api/hello", baseController.Hello)
 	userController := new(controllers.User)
-	r.POST("/api/demo", userController.Demo)
 	r.POST("/api/register", userController.Register)
 	r.POST("/api/login", userController.Login)
 	r.POST("/api/password/email", userController.SendResetEmail)
@@ -87,7 +89,6 @@ func registerRoutes(r *gin.Engine) {
 	auth := r.Group("/api", middlewares.Auth())
 	auth.POST("/verification/email", userController.SendVerifyEmail)
 	auth.POST("/verification", userController.VerifyEmail)
-	//获取详细信息
 	auth.GET("/profile", userController.GetProfile)
 }
 

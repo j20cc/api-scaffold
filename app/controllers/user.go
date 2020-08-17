@@ -20,7 +20,7 @@ type registerRequest struct {
 }
 
 // Register user action
-func (u *User) Register(c *gin.Context) {
+func (User) Register(c *gin.Context) {
 	var req registerRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		ErrValidateResponse(c, err, req)
@@ -61,7 +61,7 @@ type loginRequest struct {
 }
 
 // Login action
-func (u *User) Login(c *gin.Context) {
+func (User) Login(c *gin.Context) {
 	var req loginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		ErrValidateResponse(c, err, req)
@@ -86,7 +86,7 @@ func (u *User) Login(c *gin.Context) {
 }
 
 // SendResetEmail send reset password email
-func (u *User) SendResetEmail(c *gin.Context) {
+func (User) SendResetEmail(c *gin.Context) {
 	var req struct {
 		Email string `json:"email" binding:"email" label:"zh=邮箱"`
 	}
@@ -113,7 +113,7 @@ type resetPasswordRequest struct {
 }
 
 // ResetPassword reset password action
-func (u *User) ResetPassword(c *gin.Context) {
+func (User) ResetPassword(c *gin.Context) {
 	var req resetPasswordRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		ErrValidateResponse(c, err, req)
@@ -137,7 +137,7 @@ func (u *User) ResetPassword(c *gin.Context) {
 }
 
 // SendVerifyEmail send verify email action
-func (u *User) SendVerifyEmail(c *gin.Context) {
+func (User) SendVerifyEmail(c *gin.Context) {
 	user, exists := models.FindUser("id", c.GetString("userId"))
 	if !exists {
 		ErrResponse(c, http.StatusUnauthorized, errModelNotFound)
@@ -151,7 +151,7 @@ func (u *User) SendVerifyEmail(c *gin.Context) {
 }
 
 // VerifyEmail action
-func (u *User) VerifyEmail(c *gin.Context) {
+func (User) VerifyEmail(c *gin.Context) {
 	var req struct {
 		Sign string `json:"sign" binding:"required" label:"zh=签名"`
 	}
@@ -172,7 +172,7 @@ func (u *User) VerifyEmail(c *gin.Context) {
 }
 
 // GetProfile get login user profile
-func (u *User) GetProfile(c *gin.Context) {
+func (User) GetProfile(c *gin.Context) {
 	user, exists := models.FindUser("id", c.GetString("userId"))
 	if !exists {
 		ErrResponse(c, http.StatusUnauthorized, errModelNotFound)

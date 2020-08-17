@@ -9,7 +9,7 @@ const routes = [
     { path: '/forget', name: 'forget', component: () => import('../pages/auth/Forget.vue'), meta: { guest: true } },
     { path: '/password/reset', name: 'reset', component: () => import('../pages/auth/Reset.vue'), meta: { guest: true } },
     { path: '/verification', name: 'verification', component: () => import('../pages/auth/VerifyEmail.vue'), meta: { auth: true } },
-    { path: '/user', name: 'user', component: () => import('../pages/User.vue'), meta: { auth: true } },
+    { path: '/user', name: 'user', component: () => import('../pages/auth/User.vue'), meta: { auth: true } },
 ]
 
 let mode = process.env.NODE_ENV == 'production' ? 'history' : 'hash'
