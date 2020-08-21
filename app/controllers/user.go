@@ -5,9 +5,10 @@ import (
 	"net/http"
 	"time"
 
+	"gvue-scaffold/app/models"
+	"gvue-scaffold/internal/helper"
+
 	"github.com/gin-gonic/gin"
-	"github.com/lukedever/gvue-scaffold/app/models"
-	"github.com/lukedever/gvue-scaffold/internal/helper"
 )
 
 // User controller

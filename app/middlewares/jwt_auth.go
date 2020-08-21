@@ -2,11 +2,12 @@ package middlewares
 
 import (
 	"errors"
-	"github.com/gin-gonic/gin"
-	"github.com/lukedever/gvue-scaffold/app/controllers"
-	"github.com/lukedever/gvue-scaffold/internal/helper"
+	"gvue-scaffold/app/controllers"
+	"gvue-scaffold/internal/helper"
 	"net/http"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 func Auth() gin.HandlerFunc {

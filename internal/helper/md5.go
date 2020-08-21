@@ -6,6 +6,7 @@ import (
 	"io"
 )
 
+// Md5 make a ma5
 func Md5(s string) string {
 	h := md5.New()
 	_, _ = io.WriteString(h, s)

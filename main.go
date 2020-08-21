@@ -10,10 +10,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/lukedever/gvue-scaffold/app/controllers"
-	"github.com/lukedever/gvue-scaffold/app/middlewares"
-	"github.com/lukedever/gvue-scaffold/app/models"
-	"github.com/lukedever/gvue-scaffold/internal/log"
+	"gvue-scaffold/app/controllers"
+	"gvue-scaffold/app/middlewares"
+	"gvue-scaffold/app/models"
+	"gvue-scaffold/internal/log"
+
 	"go.uber.org/zap"
 
 	"github.com/gin-gonic/contrib/static"
@@ -63,13 +64,13 @@ func main() {
 	// kill -9 is syscall.SIGKILL but can't be catch, so don't need add it
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
-	log.Info("Shutting down server...")
+	log.Info("shutting down server...")
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
-		log.Error("Server forced to shutdown:", zap.Error(err))
+		log.Error("server forced to shutdown:", zap.Error(err))
 	}
-	log.Error("Server exited")
+	log.Error("server exited")
 }
 
 func registerRoutes(r *gin.Engine) {
@@ -80,7 +81,8 @@ func registerRoutes(r *gin.Engine) {
 	r.Use(middlewares.CORS())
 	//注册路由
 	baseController := new(controllers.Controller)
-	r.POST("/api/hello", baseController.Hello)
+	r.GET("/api/hello", baseController.Hello)
+	//auth-route-start
 	userController := new(controllers.User)
 	r.POST("/api/register", userController.Register)
 	r.POST("/api/login", userController.Login)
@@ -90,6 +92,7 @@ func registerRoutes(r *gin.Engine) {
 	auth.POST("/verification/email", userController.SendVerifyEmail)
 	auth.POST("/verification", userController.VerifyEmail)
 	auth.GET("/profile", userController.GetProfile)
+	//auth-route-end
 }
 
 func initConfig(file string) {

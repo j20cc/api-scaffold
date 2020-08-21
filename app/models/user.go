@@ -4,11 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/go-redis/redis/v8"
-	"github.com/lukedever/gvue-scaffold/internal/helper"
-	"github.com/spf13/viper"
+	"gvue-scaffold/internal/helper"
 	"net/url"
 	"time"
+
+	"github.com/go-redis/redis/v8"
+	"github.com/spf13/viper"
 )
 
 type User struct {

@@ -8,9 +8,10 @@ import (
 	"strconv"
 	"strings"
 
+	"gvue-scaffold/app/validations"
+
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
-	"github.com/lukedever/gvue-scaffold/app/validations"
 	"github.com/spf13/viper"
 )
 

@@ -22,6 +22,7 @@
         <span class="mr-5 hover:text-gray-900 cursor-pointer" @click="logout">退出</span>
       </nav>
 
+      <!-- auth-btn-start -->
       <router-link to="/login" v-if="showLoginButton">
         <button
           class="inline-flex items-center bg-gray-200 border-0 py-1 px-3 focus:outline-none hover:bg-gray-300 rounded text-base mt-0"
@@ -58,6 +59,7 @@
           </svg>
         </button>
       </router-link>
+      <!-- auth-btn-end -->
     </div>
   </header>
 </template>
@@ -70,7 +72,7 @@ export default {
   name: "MyHeader",
   data() {
     return {
-      title: process.env.MIX_APP_NAME
+      title: process.env.MIX_APP_NAME,
     };
   },
   computed: {
@@ -80,32 +82,32 @@ export default {
     showRegisterButton() {
       return this.$route.path == "/login" && !this.user;
     },
-    ...mapState(["user"])
+    ...mapState(["user"]),
   },
   methods: {
     logout() {
       this.$confirm("确认退出吗?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
-        type: "warning"
+        type: "warning",
       })
         .then(() => {
           helper.removeUser();
           this.$notify.success({
             title: "成功",
-            message: "退出成功~即将跳到登录页"
+            message: "退出成功~即将跳到登录页",
           });
           setTimeout(() => {
             this.$notify.closeAll();
             this.$router.push({
-              path: "/login"
+              path: "/login",
             });
           }, 2000);
         })
         .catch(() => {
           console.log("cancle");
         });
-    }
-  }
+    },
+  },
 };
 </script>

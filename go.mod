@@ -1,4 +1,4 @@
-module github.com/lukedever/gvue-scaffold
+module gvue-scaffold
 
 go 1.14
 

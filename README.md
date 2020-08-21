@@ -40,7 +40,6 @@ $ bin/server -f etc/config.yml          #或make run运行
 ```sh
 $ wget https://raw.githubusercontent.com/lukedever/gvue-scaffold/master/etc/new.sh
 $ bash new.sh
-please enter your name [default git_config_name]: your_name
-please enter your project name: your_project
+please enter your project name: project_name
 do you need auth ui y/n? [default y]: y
 ```
