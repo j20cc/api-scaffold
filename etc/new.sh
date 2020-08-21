@@ -35,7 +35,7 @@ if [ "$ui" = false ]; then
 
     rm -rf $name/resources/js/pages/auth
     sed -i '/<!-- auth-btn-start -->/,/<!-- auth-btn-end -->/d' $name/resources/js/components/MyHeader.vue
-    sed -i '/\/\/auth-route-start/,/\/\/auth-route-end/p' $name/resources/js/libs/routes.js
+    sed -i '/\/\/auth-route-start/,/\/\/auth-route-end/d' $name/resources/js/libs/routes.js
 fi
 
 #删除git
