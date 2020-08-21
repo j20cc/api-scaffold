@@ -3,12 +3,14 @@ package models
 import (
 	"context"
 	"fmt"
+	"log"
+	"time"
+
 	"github.com/go-redis/redis/v8"
+	// mysql driver
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 	"github.com/spf13/viper"
-	"log"
-	"time"
 )
 
 var (
@@ -17,6 +19,7 @@ var (
 	err      error
 )
 
+// Model is base model
 type Model struct {
 	ID        uint       `gorm:"primary_key" json:"id"`
 	CreatedAt time.Time  `json:"created_at"`
@@ -24,6 +27,7 @@ type Model struct {
 	DeletedAt *time.Time `sql:"index" json:"-"`
 }
 
+// InitDB init mysql and redis
 func InitDB() {
 	initMysql()
 	initRedis()

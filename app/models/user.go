@@ -12,6 +12,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+// User is user model
 type User struct {
 	Model
 	EmailVerifiedAt *time.Time `json:"email_verified_at"`
@@ -22,29 +23,31 @@ type User struct {
 	Token           string     `json:"token"`
 }
 
+// FindUser find user by key
 func FindUser(key, value string) (*User, bool) {
 	var user User
 	if mysqlCli.Where(key+" = ?", value).First(&user); user.ID > 0 {
 		return &user, true
-	} else {
-		return nil, false
 	}
+	return nil, false
 }
 
+// Save a user
 func (u *User) Save() error {
 	return mysqlCli.Save(u).Error
 }
 
+// New a user
 func (u *User) New() (uint, error) {
 	if err := mysqlCli.Create(u).Error; err != nil {
 		return 0, err
-	} else {
-		return u.ID, nil
 	}
+	return u.ID, nil
 }
 
+// SendWelcomeEmail send welcome email to user
 func (u *User) SendWelcomeEmail() {
-	link, err := u.getSignedUrl("verify")
+	link, err := u.getSignedURL("verify")
 	if err != nil {
 		//TODO 记录日志
 		return
@@ -53,8 +56,9 @@ func (u *User) SendWelcomeEmail() {
 	_ = helper.SendEmail(u.Email, "欢迎注册", body)
 }
 
+// SendVerifyEmail send verify email
 func (u *User) SendVerifyEmail() error {
-	link, err := u.getSignedUrl("verify")
+	link, err := u.getSignedURL("verify")
 	if err != nil {
 		//TODO 记录日志
 		return err
@@ -63,8 +67,9 @@ func (u *User) SendVerifyEmail() error {
 	return helper.SendEmail(u.Email, "验证邮箱", body)
 }
 
+// SendResetEmail send reset password email to user
 func (u *User) SendResetEmail() error {
-	link, err := u.getSignedUrl("reset")
+	link, err := u.getSignedURL("reset")
 	if err != nil {
 		return err
 	}
@@ -74,7 +79,7 @@ func (u *User) SendResetEmail() error {
 
 var keySignPrefix = "user:sign:%s:%s"
 
-func (u *User) getSignedUrl(t string) (string, error) {
+func (u *User) getSignedURL(t string) (string, error) {
 	host := viper.GetString("app.url")
 	//签名
 	signstr := helper.Md5(u.Email)
@@ -106,7 +111,8 @@ func (u *User) getSignedUrl(t string) (string, error) {
 	return myurl.String(), nil
 }
 
-func DecodeSignUrl(t, sign string) (*User, error) {
+// DecodeSignURL decode sign in url
+func DecodeSignURL(t, sign string) (*User, error) {
 	if t != "reset" && t != "verify" {
 		return nil, errors.New("链接错误")
 	}

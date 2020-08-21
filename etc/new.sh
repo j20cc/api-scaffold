@@ -14,7 +14,7 @@ if [ "$ui" == "n" ]; then
 fi
 
 #克隆项目
-if git clone https://gvue-scaffold $name; then
+if git clone https://github.com/lukedever/gvue-scaffold $name; then
     echo "clone project success"
 else
     echo "clone project failed"
@@ -30,7 +30,7 @@ if [ "$ui" = false ]; then
     echo "remove ui code..."
     rm $name/app/controllers/user.go
     rm $name/app/models/user.go
-    rm $name/app/validations/user.go
+    sed -i '/mysqlCli.AutoMigrate(&User{})/d' $name/app/models/db.go
     sed -i '/\/\/auth-route-start/,/\/\/auth-route-end/d' $name/main.go
 
     rm -rf $name/resources/js/pages/auth
