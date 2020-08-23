@@ -2,6 +2,7 @@ app:
   addr: :8001
   locale: zh
 log:
+  path: etc/logs/server.log
   level: debug
   max_size: 1
   max_backups: 7

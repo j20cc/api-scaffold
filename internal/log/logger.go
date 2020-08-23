@@ -27,7 +27,7 @@ func NewLogger() {
 	}
 	// zap hook
 	hook := lumberjack.Logger{
-		Filename:   "logs/server.log",               // 日志文件路径
+		Filename:   viper.GetString("log.path"),     // 日志文件路径
 		MaxSize:    viper.GetInt("log.max_size"),    // 每个日志文件保存的最大尺寸 单位：M
 		MaxBackups: viper.GetInt("log.max_backups"), // 日志文件最多保存多少个备份
 		MaxAge:     viper.GetInt("log.max_age"),     // 文件最多保存多少天
@@ -87,4 +87,9 @@ func Warn(msg string, fields ...zap.Field) {
 // Error log
 func Error(msg string, fields ...zap.Field) {
 	l.engine.Error(msg, fields...)
+}
+
+// Fatal log
+func Fatal(msg string, fields ...zap.Field) {
+	l.engine.Fatal(msg, fields...)
 }

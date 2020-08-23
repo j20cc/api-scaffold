@@ -15,6 +15,7 @@ require (
 	github.com/jinzhu/gorm v1.9.13
 	github.com/joho/godotenv v1.3.0
 	github.com/spf13/viper v1.7.0
+	github.com/urfave/cli/v2 v2.2.0
 	go.uber.org/zap v1.10.0
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 )

@@ -31,7 +31,7 @@ if [ "$ui" = false ]; then
     rm $name/app/controllers/user.go
     rm $name/app/models/user.go
     sed -i '/mysqlCli.AutoMigrate(&User{})/d' $name/app/models/db.go
-    sed -i '/\/\/auth-route-start/,/\/\/auth-route-end/d' $name/main.go
+    sed -i '/\/\/auth-route-start/,/\/\/auth-route-end/d' $name/cmd/server.go
 
     rm -rf $name/resources/js/pages/auth
     sed -i '/<!-- auth-btn-start -->/,/<!-- auth-btn-end -->/d' $name/resources/js/components/MyHeader.vue

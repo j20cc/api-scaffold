@@ -29,8 +29,8 @@ $ cd gvue-scaffold
 $ cp .env.example .env                  #修改相关配置
 $ yarn                                  #安装前端依赖
 $ yarn prod                             #开发时npm run watch
-$ make                                  #编译
-$ bin/server -f etc/config.yml          #或make run运行
+$ make build                            #编译
+$ bin/server run                        #或make run运行
 ```
 
 打开浏览器 [http://localhost:3000](http://localhost:3000)
