@@ -2,6 +2,7 @@ package models
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"log"
 	"time"
@@ -60,4 +61,9 @@ func initMysql() {
 	//defer DB.Close()
 
 	mysqlCli.AutoMigrate(&User{})
+}
+
+// GetDB return mysql instance
+func GetDB() *sql.DB {
+	return mysqlCli.DB()
 }

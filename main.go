@@ -7,6 +7,7 @@ import (
 
 	"gvue-scaffold/app/models"
 	"gvue-scaffold/cmd"
+	"gvue-scaffold/cmd/migrate"
 	"gvue-scaffold/internal/log"
 
 	"github.com/joho/godotenv"
@@ -31,7 +32,7 @@ func main() {
 
 	app := &cli.App{
 		Name:  viper.GetString("app.name"),
-		Usage: "gin+vue全栈项目",
+		Usage: "gin+vue全栈开发",
 		Commands: []*cli.Command{
 			{
 				Name:  "run",
@@ -45,7 +46,30 @@ func main() {
 				Name:  "migrate",
 				Usage: "migrate database",
 				Action: func(c *cli.Context) error {
-					return cmd.RunMigrate()
+					return migrate.RunUp(c)
+				},
+				Subcommands: []*cli.Command{
+					{
+						Name:  "create",
+						Usage: "create migrations, run 'migrate create [create|alter]_foos_table'",
+						Action: func(c *cli.Context) error {
+							return migrate.RunCreate(c)
+						},
+					},
+					{
+						Name:  "rollback",
+						Usage: "rollback migrations",
+						Action: func(c *cli.Context) error {
+							return migrate.RunUp(c)
+						},
+					},
+					{
+						Name:  "refresh",
+						Usage: "refresh migrations",
+						Action: func(c *cli.Context) error {
+							return migrate.RunUp(c)
+						},
+					},
 				},
 			},
 		},
