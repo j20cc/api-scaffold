@@ -2,6 +2,7 @@ package migrate
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -28,23 +29,11 @@ var (
 )
 
 // New return migrator instance
-func New(db *sql.DB, path, name string) *Migrator {
+func New(db *sql.DB, path string) *Migrator {
 	migrator := &Migrator{
-		db:        db,
-		path:      path,
-		tableName: name,
-		ts:        time.Now().Format("20060102150405"),
-	}
-	migrator.upName = fmt.Sprintf("%s_%s.up.sql", migrator.ts, name)
-	migrator.downName = fmt.Sprintf("%s_%s.down.sql", migrator.ts, name)
-	s := strings.Split(name, "_")
-	if len(s) == 3 && s[2] == "table" {
-		if s[0] == "create" {
-			migrator.tp = createType
-		} else if s[0] == "alter" {
-			migrator.tp = alterType
-		}
-		migrator.tableName = s[1]
+		db:   db,
+		path: path,
+		ts:   time.Now().Format("20060102150405"),
 	}
 	if err := migrator.createMigrationTable(); err != nil {
 		panic(err)
@@ -52,8 +41,28 @@ func New(db *sql.DB, path, name string) *Migrator {
 	return migrator
 }
 
+// SetName set migration name
+func (m *Migrator) SetName(name string) error {
+	m.tableName = name
+	m.upName = fmt.Sprintf("%s_%s.up.sql", m.ts, name)
+	m.downName = fmt.Sprintf("%s_%s.down.sql", m.ts, name)
+	s := strings.Split(name, "_")
+	if len(s) == 3 && s[2] == "table" {
+		if s[0] == "create" {
+			m.tp = createType
+		} else if s[0] == "alter" {
+			m.tp = alterType
+		}
+		m.tableName = s[1]
+	}
+	return nil
+}
+
 // Create create migration
 func (m *Migrator) Create() error {
+	if m.upName == "" || m.downName == "" {
+		return errors.New("migration name required")
+	}
 	if err := m.createFile("up"); err != nil {
 		return err
 	}
@@ -62,6 +71,70 @@ func (m *Migrator) Create() error {
 		return err
 	}
 	fmt.Printf("created migration %s\n", m.downName)
+	return nil
+}
+
+// Up up migration
+func (m *Migrator) Up() error {
+	if m.upName == "" || m.downName == "" {
+		return errors.New("migration name required")
+	}
+	//get all migration files
+	ms, err := m.getMigrations("up")
+	if err != nil {
+		return err
+	}
+	//get migration records
+	rs, b, err := m.getMigrationRecords()
+	if err != nil {
+		return err
+	}
+	//except migrations
+	for k, v := range ms {
+		tmp := filepath.Base(v)
+		for _, i := range rs {
+			if tmp == i+".up.sql" {
+				ms = append(ms[:k], ms[k+1:]...)
+			}
+		}
+	}
+	if len(ms) == 0 {
+		fmt.Println("everyting is up to date")
+		return nil
+	}
+	//get sql，run
+	for _, s := range ms {
+		sql, err := ioutil.ReadFile(s)
+		if err != nil {
+			return err
+		}
+		tx, _ := m.db.Begin()
+		_, err = tx.Exec(string(sql))
+		if err != nil {
+			_ = tx.Rollback()
+			return err
+		}
+		s = filepath.Base(s)
+		s = strings.TrimRight(s, ".up.sql")
+		_, err = tx.Exec("INSERT INTO migrations VALUES (null, ?, ?)", s, b+1)
+		if err != nil {
+			_ = tx.Rollback()
+			return err
+		}
+		if err := tx.Commit(); err != nil {
+			_ = tx.Rollback()
+			return err
+		}
+		fmt.Printf("migrated %s success\n", s)
+	}
+	return nil
+}
+
+// Down down migration
+func (m *Migrator) Down() error {
+	if m.upName == "" || m.downName == "" {
+		return errors.New("migration name required")
+	}
 	return nil
 }
 
@@ -86,61 +159,6 @@ func (m *Migrator) createFile(t string) error {
 	return nil
 }
 
-// Up up migration
-func (m *Migrator) Up() error {
-	//获取migrations文件
-	ms, err := m.getMigrations("up")
-	if err != nil {
-		return err
-	}
-	//排除已执行的migrations记录
-	rs, err := m.getMigrationRecords()
-	if err != nil {
-		return err
-	}
-	//排除已执行的migrations
-	for k, v := range ms {
-		tmp := filepath.Base(v)
-		for _, i := range rs {
-			if tmp == i+".up.sql" {
-				ms = append(ms[:k], ms[k+1:]...)
-			}
-		}
-	}
-	if len(ms) == 0 {
-		fmt.Println("everyting is up to date")
-		return nil
-	}
-	//获取sql，执行
-	for _, s := range ms {
-		sql, err := ioutil.ReadFile(s)
-		if err != nil {
-			return err
-		}
-		tx, _ := m.db.Begin()
-		_, err = tx.Exec(string(sql))
-		if err != nil {
-			_ = tx.Rollback()
-			return err
-		}
-		s = filepath.Base(s)
-		s = strings.TrimRight(s, ".up.sql")
-		_, err = tx.Exec("INSERT INTO migrations VALUES (null, ?)", s)
-		if err != nil {
-			_ = tx.Rollback()
-			return err
-		}
-		if err := tx.Commit(); err != nil {
-			return err
-		}
-		fmt.Printf("migrated %s success\n", s)
-	}
-	return nil
-}
-
-// Down down migration
-func (m *Migrator) Down() error { return nil }
-
 func (m *Migrator) getMigrations(t string) ([]string, error) {
 	matches, err := filepath.Glob(fmt.Sprintf("%s/*.%s.sql", m.path, t))
 	if err != nil {
@@ -148,28 +166,32 @@ func (m *Migrator) getMigrations(t string) ([]string, error) {
 	}
 	return matches, nil
 }
-func (m *Migrator) getMigrationRecords() ([]string, error) {
+func (m *Migrator) getMigrationRecords() ([]string, uint, error) {
 	sql := "select migration from migrations order by id desc"
 	rows, err := m.db.Query(sql)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	defer rows.Close()
 	var res []string
+	var batches []uint
 	for rows.Next() {
 		var i string
-		if err := rows.Scan(&i); err != nil {
-			return nil, err
+		var batch uint
+		if err := rows.Scan(&i, &batch); err != nil {
+			return nil, 0, err
 		}
 		res = append(res, i)
+		batches = append(batches, batch)
 	}
-	return res, nil
+	return res, batches[0], nil
 }
 
 func (m *Migrator) createMigrationTable() error {
 	sqlContent := `CREATE TABLE IF NOT EXISTS migrations (
    id INT UNSIGNED AUTO_INCREMENT,
    migration VARCHAR(255),
+   batch INT UNSIGNED,
    PRIMARY KEY (id)
 )
 `
