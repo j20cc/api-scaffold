@@ -37,10 +37,11 @@ $ bin/server run                        #运行
 
 ## 数据库迁移
 
-新建迁移
+新建迁移，会同时创建 up down 的 sql 文件
 
 ```sh
-$ bin/server migrate create create_foos_table
+$ bin/server migrate create create_foos_table                   #新建foos表
+$ bin/server migrate create alter_foos_table_add_bar_column     #修改foos表添加bar字段
 ```
 
 执行/回滚 迁移
