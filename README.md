@@ -16,9 +16,9 @@ GVUE = gin + vue
 - [x] 发送邮件(使用阿里云邮件，每日200封免费)
 - [x] 多语言表单验证
 - [x] 日志
-- [ ] i18n
+- [x] 数据库迁移
 - [ ] 接口限流
-- [ ] 数据库迁移
+- [ ] i18n
 - [ ] ...
 
 ## 起步
@@ -30,10 +30,24 @@ $ cp .env.example .env                  #修改相关配置
 $ yarn                                  #安装前端依赖
 $ yarn prod                             #开发时npm run watch
 $ make build                            #编译
-$ bin/server run                        #或make run运行
+$ bin/server run                        #运行
 ```
 
 打开浏览器 [http://localhost:3000](http://localhost:3000)
+
+## 数据库迁移
+
+新建迁移
+
+```sh
+$ bin/server migrate create create_foos_table
+```
+
+执行/回滚 迁移
+
+```sh
+$ bin/server migrate up/down
+```
 
 ## 使用脚本创建
 

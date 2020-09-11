@@ -47,7 +47,7 @@ func (m *Migrator) SetName(name string) error {
 	m.upName = fmt.Sprintf("%s_%s.up.sql", m.ts, name)
 	m.downName = fmt.Sprintf("%s_%s.down.sql", m.ts, name)
 	s := strings.Split(name, "_")
-	if len(s) == 3 && s[2] == "table" {
+	if len(s) >= 3 && s[2] == "table" {
 		if s[0] == "create" {
 			m.tp = createType
 		} else if s[0] == "alter" {
@@ -85,7 +85,7 @@ func (m *Migrator) Up() error {
 		return err
 	}
 	//get migration records
-	rs, b, err := m.getMigrationRecords()
+	rs, err := m.getMigrationRecords()
 	if err != nil {
 		return err
 	}
@@ -93,7 +93,7 @@ func (m *Migrator) Up() error {
 	for k, v := range ms {
 		tmp := filepath.Base(v)
 		for _, i := range rs {
-			if tmp == i+".up.sql" {
+			if tmp == i.migration+".up.sql" {
 				ms = append(ms[:k], ms[k+1:]...)
 			}
 		}
@@ -103,6 +103,12 @@ func (m *Migrator) Up() error {
 		return nil
 	}
 	//get sql，run
+	var newBatch uint
+	if len(rs) != 0 {
+		newBatch = rs[0].batch + 1
+	} else {
+		newBatch = 1
+	}
 	for _, s := range ms {
 		sql, err := ioutil.ReadFile(s)
 		if err != nil {
@@ -116,7 +122,7 @@ func (m *Migrator) Up() error {
 		}
 		s = filepath.Base(s)
 		s = strings.TrimRight(s, ".up.sql")
-		_, err = tx.Exec("INSERT INTO migrations VALUES (null, ?, ?)", s, b+1)
+		_, err = tx.Exec("INSERT INTO migrations VALUES (null, ?, ?)", s, newBatch)
 		if err != nil {
 			_ = tx.Rollback()
 			return err
@@ -134,6 +140,34 @@ func (m *Migrator) Up() error {
 func (m *Migrator) Down() error {
 	if m.upName == "" || m.downName == "" {
 		return errors.New("migration name required")
+	}
+	rs, err := m.getLastBatchRecords()
+	if err != nil {
+		return err
+	}
+	for _, v := range rs {
+		fmt.Printf("%v\n", v)
+		sql, err := ioutil.ReadFile(path.Join(m.path, v.migration) + ".down.sql")
+		if err != nil {
+			return err
+		}
+		tx, _ := m.db.Begin()
+		// run file sql
+		if _, err = tx.Exec(string(sql)); err != nil {
+			_ = tx.Rollback()
+			return err
+		}
+		// delete record
+		_, err = tx.Exec("delete from migrations where id = ?", v.id)
+		if err != nil {
+			_ = tx.Rollback()
+			return err
+		}
+		if err := tx.Commit(); err != nil {
+			_ = tx.Rollback()
+			return err
+		}
+		fmt.Printf("rollback %s success\n", v.migration)
 	}
 	return nil
 }
@@ -166,25 +200,47 @@ func (m *Migrator) getMigrations(t string) ([]string, error) {
 	}
 	return matches, nil
 }
-func (m *Migrator) getMigrationRecords() ([]string, uint, error) {
-	sql := "select migration from migrations order by id desc"
+
+type record struct {
+	id        uint
+	migration string
+	batch     uint
+}
+
+func (m *Migrator) getMigrationRecords() ([]record, error) {
+	sql := "select id, migration, batch from migrations order by id desc"
 	rows, err := m.db.Query(sql)
 	if err != nil {
-		return nil, 0, err
+		return nil, err
 	}
 	defer rows.Close()
-	var res []string
-	var batches []uint
+	var res []record
 	for rows.Next() {
-		var i string
-		var batch uint
-		if err := rows.Scan(&i, &batch); err != nil {
-			return nil, 0, err
+		var r record
+		if err := rows.Scan(&r.id, &r.migration, &r.batch); err != nil {
+			return nil, err
 		}
-		res = append(res, i)
-		batches = append(batches, batch)
+		res = append(res, r)
 	}
-	return res, batches[0], nil
+	return res, nil
+}
+
+func (m *Migrator) getLastBatchRecords() ([]record, error) {
+	rs, err := m.getMigrationRecords()
+	if err != nil {
+		return nil, err
+	}
+	if len(rs) == 0 {
+		return nil, nil
+	}
+	var res []record
+	lastBatch := rs[0].batch
+	for _, v := range rs {
+		if v.batch == lastBatch {
+			res = append(res, v)
+		}
+	}
+	return res, nil
 }
 
 func (m *Migrator) createMigrationTable() error {

@@ -1,6 +1,0 @@
-CREATE TABLE IF NOT EXISTS posts (
-   id INT UNSIGNED AUTO_INCREMENT,
-   title VARCHAR(100),
-   body TEXT,
-   PRIMARY KEY (id)
-)

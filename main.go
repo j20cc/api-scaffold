@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"os"
 	"strings"
 
@@ -22,7 +21,6 @@ var (
 )
 
 func main() {
-	flag.Parse()
 	//初始化配置
 	initConfig()
 	//初始化日志
@@ -45,9 +43,6 @@ func main() {
 			{
 				Name:  "migrate",
 				Usage: "migrate database",
-				Action: func(c *cli.Context) error {
-					return migrate.RunUp(c)
-				},
 				Subcommands: []*cli.Command{
 					{
 						Name:  "create",
@@ -57,17 +52,17 @@ func main() {
 						},
 					},
 					{
-						Name:  "rollback",
-						Usage: "rollback migrations",
+						Name:  "up",
+						Usage: "up migrations",
 						Action: func(c *cli.Context) error {
 							return migrate.RunUp(c)
 						},
 					},
 					{
-						Name:  "refresh",
-						Usage: "refresh migrations",
+						Name:  "down",
+						Usage: "rollback migrations",
 						Action: func(c *cli.Context) error {
-							return migrate.RunUp(c)
+							return migrate.RunDown(c)
 						},
 					},
 				},

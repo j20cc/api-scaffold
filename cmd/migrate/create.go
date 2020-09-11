@@ -8,19 +8,19 @@ import (
 )
 
 var (
-	path     = "resources/migrations"
-	tbname   = "migrations"
-	migrator *migrate.Migrator
+	path   = "resources/migrations"
+	tbname = "migrations"
 )
 
-func init() {
+func getMigrator() *migrate.Migrator {
 	db := models.GetDB()
-	migrator = migrate.New(db, path)
+	return migrate.New(db, path)
 }
 
 // RunCreate create migration stub
 func RunCreate(c *cli.Context) error {
 	name := c.Args().First()
+	migrator := getMigrator()
 	migrator.SetName(name)
 	return migrator.Create()
 }

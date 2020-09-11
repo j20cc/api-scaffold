@@ -4,10 +4,10 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-// RunUp up migrations
-func RunUp(c *cli.Context) error {
+// RunDown rollback migrations
+func RunDown(c *cli.Context) error {
 	name := c.Args().First()
 	migrator := getMigrator()
 	migrator.SetName(name)
-	return migrator.Up()
+	return migrator.Down()
 }
