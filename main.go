@@ -13,7 +13,7 @@ import (
 	"gvue-scaffold/app/controllers"
 	"gvue-scaffold/app/middlewares"
 	"gvue-scaffold/app/models"
-	"gvue-scaffold/internal/log"
+	"gvue-scaffold/pkg/log"
 
 	"go.uber.org/zap"
 
@@ -58,17 +58,15 @@ func main() {
 		}
 	}()
 	log.Info("app is running...", zap.String("addr", runAddr))
+
 	quit := make(chan os.Signal)
-	// kill (no param) default send syscall.SIGTERM
-	// kill -2 is syscall.SIGINT
-	// kill -9 is syscall.SIGKILL but can't be catch, so don't need add it
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 	log.Info("shutting down server...")
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
-		log.Error("server forced to shutdown:", zap.Error(err))
+		log.Error("server forced to shutdown err:", zap.Error(err))
 	}
 	log.Error("server exited")
 }

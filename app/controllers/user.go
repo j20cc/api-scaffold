@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"gvue-scaffold/app/models"
-	"gvue-scaffold/internal/helper"
+	"gvue-scaffold/pkg/helper"
 
 	"github.com/gin-gonic/gin"
 )
@@ -28,11 +28,11 @@ func (User) Register(c *gin.Context) {
 		return
 	}
 	if _, exsist := models.FindUser("name", req.Name); exsist {
-		ErrResponse(c, http.StatusUnprocessableEntity, errors.New("该用户已存在"))
+		ErrCustomValidateResponse(c, errors.New("该用户已存在"))
 		return
 	}
 	if _, exsist := models.FindUser("email", req.Email); exsist {
-		ErrResponse(c, http.StatusUnprocessableEntity, errors.New("该邮箱已被注册"))
+		ErrCustomValidateResponse(c, errors.New("该邮箱已被注册"))
 		return
 	}
 	user := &models.User{
@@ -41,7 +41,7 @@ func (User) Register(c *gin.Context) {
 		Password: helper.Md5(req.Password),
 	}
 	if _, err := user.New(); err != nil {
-		ErrResponse(c, http.StatusUnprocessableEntity, err)
+		ErrCustomValidateResponse(c, err)
 		return
 	}
 	//发送欢迎邮件
@@ -70,11 +70,11 @@ func (User) Login(c *gin.Context) {
 	}
 	user, exsist := models.FindUser("email", req.Email)
 	if !exsist {
-		ErrResponse(c, http.StatusUnprocessableEntity, errors.New("该邮箱用户不存在"))
+		ErrCustomValidateResponse(c, errors.New("该邮箱用户不存在"))
 		return
 	}
 	if user.Password != helper.Md5(req.Password) {
-		ErrResponse(c, http.StatusUnprocessableEntity, errors.New("密码不正确"))
+		ErrCustomValidateResponse(c, errors.New("密码不正确"))
 		return
 	}
 	token, _ := helper.BuildToken(user.ID)
@@ -97,7 +97,7 @@ func (User) SendResetEmail(c *gin.Context) {
 	}
 	user, exsist := models.FindUser("email", req.Email)
 	if !exsist {
-		ErrResponse(c, http.StatusUnprocessableEntity, errors.New("该邮箱未注册"))
+		ErrCustomValidateResponse(c, errors.New("该邮箱未注册"))
 		return
 	}
 	if err := user.SendResetEmail(); err != nil {

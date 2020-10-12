@@ -1,6 +1,9 @@
 package validations
 
 import (
+	"reflect"
+	"strings"
+
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/locales/en"
 	"github.com/go-playground/locales/zh"
@@ -8,8 +11,6 @@ import (
 	"github.com/go-playground/validator/v10"
 	entranslations "github.com/go-playground/validator/v10/translations/en"
 	zhtranslations "github.com/go-playground/validator/v10/translations/zh"
-	"reflect"
-	"strings"
 )
 
 var (
@@ -87,9 +88,10 @@ func init() {
 	}
 }
 
+// GetTranslator get validator translator
 func GetTranslator(locale string) ut.Translator {
 	if locale != "en" && locale != "zh" {
-		locale = "zh"
+		locale = "en"
 	}
 	trans, _ := uni.GetTranslator(locale)
 	return trans
