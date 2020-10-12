@@ -61,6 +61,11 @@ func ErrResponse(c *gin.Context, code int, err error) {
 	RespondWithJSON(c, code, gin.H{"error": err.Error()})
 }
 
+// ErrCustomValidateResponse return custom validation message
+func ErrCustomValidateResponse(c *gin.Context, err error) {
+	ErrResponse(c, http.StatusUnprocessableEntity, err)
+}
+
 // ErrValidateResponse return validation message
 func ErrValidateResponse(c *gin.Context, err error, st interface{}) {
 	code := http.StatusUnprocessableEntity

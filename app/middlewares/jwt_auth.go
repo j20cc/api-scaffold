@@ -3,7 +3,7 @@ package middlewares
 import (
 	"errors"
 	"gvue-scaffold/app/controllers"
-	"gvue-scaffold/internal/helper"
+	"gvue-scaffold/pkg/helper"
 	"net/http"
 	"strings"
 

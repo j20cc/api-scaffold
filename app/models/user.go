@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"gvue-scaffold/internal/helper"
+	"gvue-scaffold/pkg/helper"
 	"net/url"
 	"time"
 

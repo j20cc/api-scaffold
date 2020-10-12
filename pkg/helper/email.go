@@ -1,7 +1,7 @@
 package helper
 
 import (
-	"gvue-scaffold/internal/log"
+	"gvue-scaffold/pkg/log"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/dm"
