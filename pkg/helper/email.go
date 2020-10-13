@@ -6,7 +6,6 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/dm"
 	"github.com/spf13/viper"
-	"go.uber.org/zap"
 )
 
 // SendEmail send a email
@@ -34,9 +33,9 @@ func SendEmail(to, sub, body string) error {
 
 	response, err := client.SingleSendMail(request)
 	if err != nil {
-		log.Error("send email error", zap.Error(err))
+		log.Error("send email error", err)
 		return err
 	}
-	log.Debug("response is: " + response.String())
+	log.Debug("response is: ", response.String())
 	return nil
 }

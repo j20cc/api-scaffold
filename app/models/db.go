@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
+	"gvue-scaffold/pkg/log"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -56,7 +56,10 @@ func initMysql() {
 		viper.GetString("mysql.addr"),
 		viper.GetString("mysql.db")))
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
+	}
+	if viper.GetString("app.mode") == "debug" {
+		mysqlCli.Debug()
 	}
 	//defer DB.Close()
 

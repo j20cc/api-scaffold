@@ -15,8 +15,6 @@ import (
 	"gvue-scaffold/app/models"
 	"gvue-scaffold/pkg/log"
 
-	"go.uber.org/zap"
-
 	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -53,11 +51,11 @@ func main() {
 	}
 	go func() {
 		if err := srv.ListenAndServe(); err != nil {
-			log.Error("err occurred at app starting...", zap.Error(err))
+			log.Error("err occurred at app starting...", err)
 			panic(err)
 		}
 	}()
-	log.Info("app is running...", zap.String("addr", runAddr))
+	log.Info("app is running at", runAddr)
 
 	quit := make(chan os.Signal)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
@@ -66,7 +64,7 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
-		log.Error("server forced to shutdown err:", zap.Error(err))
+		log.Error("server forced to shutdown err:", err)
 	}
 	log.Error("server exited")
 }
@@ -77,6 +75,9 @@ func registerRoutes(r *gin.Engine) {
 	r.LoadHTMLGlob(indexFile)
 	//跨域
 	r.Use(middlewares.CORS())
+	//日志
+	r.GET("/log/level", gin.WrapF(log.ServeHTTP))
+	r.PUT("/log/level", gin.BasicAuth(gin.Accounts{viper.GetString("auth.user"): viper.GetString("auth.pass")}), gin.WrapF(log.ServeHTTP))
 	//注册路由
 	baseController := new(controllers.Controller)
 	r.GET("/api/hello", baseController.Hello)
