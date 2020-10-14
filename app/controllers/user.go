@@ -120,7 +120,7 @@ func (User) ResetPassword(c *gin.Context) {
 		ErrValidateResponse(c, err, req)
 		return
 	}
-	user, err := models.DecodeSignURL("reset", req.Sign)
+	user, err := models.DecodeSignURL(models.TypeReset, req.Sign)
 	if err != nil {
 		ErrResponse(c, http.StatusBadRequest, err)
 		return
@@ -167,7 +167,10 @@ func (User) VerifyEmail(c *gin.Context) {
 	}
 	t := time.Now()
 	user.EmailVerifiedAt = &t
-	_ = user.Save()
+	if err = user.Save(); err != nil {
+		ErrResponse(c, http.StatusInternalServerError, err)
+		return
+	}
 
 	SuccessResponse(c)
 }

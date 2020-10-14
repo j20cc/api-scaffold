@@ -77,7 +77,9 @@ func registerRoutes(r *gin.Engine) {
 	r.Use(middlewares.CORS())
 	//日志
 	r.GET("/log/level", gin.WrapF(log.ServeHTTP))
-	r.PUT("/log/level", gin.BasicAuth(gin.Accounts{viper.GetString("auth.user"): viper.GetString("auth.pass")}), gin.WrapF(log.ServeHTTP))
+	r.PUT("/log/level", gin.BasicAuth(gin.Accounts{
+		viper.GetString("auth.user"): viper.GetString("auth.pass"),
+	}), gin.WrapF(log.ServeHTTP))
 	//注册路由
 	baseController := new(controllers.Controller)
 	r.GET("/api/hello", baseController.Hello)

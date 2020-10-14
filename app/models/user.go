@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"gvue-scaffold/pkg/helper"
+	"gvue-scaffold/pkg/log"
 	"net/url"
 	"time"
 
@@ -47,20 +48,22 @@ func (u *User) New() (uint, error) {
 
 // SendWelcomeEmail send welcome email to user
 func (u *User) SendWelcomeEmail() {
-	link, err := u.getSignedURL("verify")
+	link, err := u.getSignedURL(TypeVerify)
 	if err != nil {
-		//TODO 记录日志
+		log.Error("get url sign error: ", err)
 		return
 	}
 	body := fmt.Sprintf("<h3>%s您好:</h3><p>欢迎注册%s，请点击链接: <a href='%s'>%s</a> 进行确认邮箱</p><p>或者直接复制链接 %s 到浏览器打开</p><p>有效期30分钟</p>", u.Name, viper.GetString("app.name"), link, link, link)
-	_ = helper.SendEmail(u.Email, "欢迎注册", body)
+	if err = helper.SendEmail(u.Email, "欢迎注册", body); err != nil {
+		log.Error("send email: ", err)
+	}
 }
 
 // SendVerifyEmail send verify email
 func (u *User) SendVerifyEmail() error {
-	link, err := u.getSignedURL("verify")
+	link, err := u.getSignedURL(TypeVerify)
 	if err != nil {
-		//TODO 记录日志
+		log.Error("get url sign error: ", err)
 		return err
 	}
 	body := fmt.Sprintf("<h3>%s您好:</h3><p>您申请验证邮箱，请点击链接: <a href='%s'>%s</a> 进行确认邮箱</p><p>或者直接复制链接 %s 到浏览器打开</p><p>有效期30分钟</p>", viper.GetString("app.name"), link, link, link)
@@ -69,7 +72,7 @@ func (u *User) SendVerifyEmail() error {
 
 // SendResetEmail send reset password email to user
 func (u *User) SendResetEmail() error {
-	link, err := u.getSignedURL("reset")
+	link, err := u.getSignedURL(TypeReset)
 	if err != nil {
 		return err
 	}
@@ -77,7 +80,13 @@ func (u *User) SendResetEmail() error {
 	return helper.SendEmail(u.Email, "重置密码", body)
 }
 
-var keySignPrefix = "user:sign:%s:%s"
+var (
+	keySignPrefix = "user:sign:%s:%s"
+	// TypeReset 重置类型的url
+	TypeReset = "reset"
+	// TypeVerify 验证类型的url
+	TypeVerify = "verify"
+)
 
 func (u *User) getSignedURL(t string) (string, error) {
 	host := viper.GetString("app.url")
@@ -87,10 +96,10 @@ func (u *User) getSignedURL(t string) (string, error) {
 	//redis key
 	key := fmt.Sprintf(keySignPrefix, t, signstr)
 	switch t {
-	case "reset":
+	case TypeReset:
 		host += "/password/reset"
 		values.Set("email", u.Email)
-	case "verify":
+	case TypeVerify:
 		host += "/verification"
 	default:
 		return "", errors.New("签名失败")
@@ -113,7 +122,7 @@ func (u *User) getSignedURL(t string) (string, error) {
 
 // DecodeSignURL decode sign in url
 func DecodeSignURL(t, sign string) (*User, error) {
-	if t != "reset" && t != "verify" {
+	if t != TypeReset && t != TypeVerify {
 		return nil, errors.New("链接错误")
 	}
 	key := fmt.Sprintf(keySignPrefix, t, sign)
