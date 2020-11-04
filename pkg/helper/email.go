@@ -13,10 +13,10 @@ func SendEmail(to, sub, body string) error {
 	accessKeyID := viper.GetString("email.id")
 	accessKeySecret := viper.GetString("email.secret")
 	if accessKeyID == "" || accessKeySecret == "" {
-		//TODO:记录日志
 		log.Warn("email key is empty")
 		return nil
 	}
+
 	client, err := dm.NewClientWithAccessKey("cn-hangzhou", accessKeyID, accessKeySecret)
 	if err != nil {
 		return err
@@ -33,7 +33,7 @@ func SendEmail(to, sub, body string) error {
 
 	response, err := client.SingleSendMail(request)
 	if err != nil {
-		log.Error("send email error", err)
+		log.Error("send email error: ", err)
 		return err
 	}
 	log.Debug("response is: ", response.String())

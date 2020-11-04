@@ -15,7 +15,7 @@ GVUE = gin + vue
 - [x] 基于 jwt 的用户认证(注册、登录、忘记密码)
 - [x] 发送邮件(使用阿里云邮件，每日200封免费)
 - [x] 多语言表单验证
-- [x] 日志
+- [x] 日志(支持动态修改级别)
 - [ ] swagger 接口文档
 - [ ] 限流
 - [ ] ...
@@ -33,21 +33,6 @@ $ bin/server run                        #运行
 ```
 
 打开浏览器 [http://localhost:3000](http://localhost:3000)
-
-## 数据库迁移
-
-新建迁移，会同时创建 up down 的 sql 文件
-
-```sh
-$ bin/server migrate create create_foos_table                   #新建foos表
-$ bin/server migrate create alter_foos_table_add_bar_column     #修改foos表添加bar字段
-```
-
-执行/回滚 迁移
-
-```sh
-$ bin/server migrate up/down
-```
 
 ## 使用脚本创建
 
