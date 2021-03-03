@@ -34,9 +34,10 @@ func main() {
 	// new userservice
 	userService := mysql.NewUserService(db)
 
-	svr := http.NewServer()
-	svr.Mode = *mode
+	svr := http.NewServer(*mode, *addr)
 	svr.UserService = userService
+
+	_ = svr.Run()
 }
 
 // Config is main config
