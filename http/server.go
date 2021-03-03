@@ -1,6 +1,7 @@
 package http
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -45,4 +46,9 @@ func NewServer(mode, addr string) *Server {
 // Run server
 func (s *Server) Run() error {
 	return s.httpServer.ListenAndServe()
+}
+
+// Shutdown server
+func (s *Server) Shutdown(ctx context.Context) error {
+	return s.httpServer.Shutdown(ctx)
 }

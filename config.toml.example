@@ -1,0 +1,7 @@
+title = "Go Api Server Example"
+
+[mysql]
+addr = "127.0.0.1:3306"
+user = "root"
+password = ""
+database = "api_database"
