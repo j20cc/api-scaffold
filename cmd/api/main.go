@@ -50,7 +50,6 @@ func readConfig() {
 	if err != nil {
 		panic(fmt.Errorf("error config file: %s \n", err))
 	}
-	log.Println(viper.AllSettings())
 	err = viper.Unmarshal(&config)
 	if err != nil {
 		panic(fmt.Errorf("unable to decode into struct, %v", err))

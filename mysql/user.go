@@ -31,5 +31,6 @@ func (s *UserService) FindUsers(filter api.UserFilter) ([]*api.User, int, error)
 
 // CreateUser create a new user
 func (s *UserService) CreateUser(user *api.User) error {
-	return nil
+	r := s.db.Create(user)
+	return r.Error
 }

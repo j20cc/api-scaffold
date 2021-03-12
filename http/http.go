@@ -1,7 +1,9 @@
 package http
 
 import (
+	"crypto/md5"
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
 	"time"
@@ -54,13 +56,17 @@ func parseToken(tokenString, secret string) {
 	}
 }
 
-func responseWithData(c *gin.Context, code int, data interface{}) {
+func (s *Server) responseWithData(c *gin.Context, code int, data interface{}) {
 	c.JSON(code, data)
 }
 
-func (s *Server) respondWithServerErr(c *gin.Context) {
-	responseWithData(c, http.StatusInternalServerError, gin.H{
-		"err_msg": "server error",
+func (s *Server) respondWithServerErr(c *gin.Context, err error, showErr bool) {
+	msg := "server error"
+	if showErr {
+		msg = msg + " : " + err.Error()
+	}
+	c.JSON(http.StatusInternalServerError, gin.H{
+		"err_msg": msg,
 	})
 }
 
@@ -84,4 +90,10 @@ func removeTopStruct(fields map[string]string) map[string]string {
 		res[field[strings.Index(field, ".")+1:]] = err
 	}
 	return res
+}
+
+func md5Str(str string) string {
+	w := md5.New()
+	io.WriteString(w, str)
+	return fmt.Sprintf("%x", w.Sum(nil))
 }

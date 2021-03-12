@@ -1,6 +1,8 @@
 package http
 
 import (
+	"errors"
+	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -23,6 +25,8 @@ type registerRequest struct {
 	RePassword string `json:"repassword" binding:"required,eqfield=Password"`
 }
 
+var ErrEmailExists = errors.New("邮箱用户已存在")
+
 // HandleRegister handle '/register' route
 func (s *Server) HandleRegister(c *gin.Context) {
 	var req registerRequest
@@ -31,20 +35,22 @@ func (s *Server) HandleRegister(c *gin.Context) {
 		return
 	}
 
-	_, err := s.UserService.FindUserByKV("email", req.Email)
-	if err != nil {
-		s.respondWithServerErr(c)
+	user, _ := s.UserService.FindUserByKV("email", req.Email)
+	if user.ID > 0 {
+		s.respondWithValidationErr(c, ErrEmailExists)
 		return
 	}
 
-	user := api.User{
-		Name: strings.TrimFunc(req.Email, func(r rune) bool {
-			return string(r) != "@"
-		}),
+	ss := strings.Split(req.Email, "@")
+	u := api.User{
+		Name:     ss[0],
 		Email:    req.Email,
-		Password: req.Password,
+		Password: md5Str(req.Password),
 	}
-	if err := s.UserService.CreateUser(&user); err != nil {
+	if err := s.UserService.CreateUser(&u); err != nil {
+		s.respondWithServerErr(c, err, true)
+		return
+	}
 
-	}
+	s.responseWithData(c, http.StatusOK, u)
 }

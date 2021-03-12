@@ -1,8 +1,10 @@
 package mysql
 
 import (
+	"github.com/lukedever/api"
 	driver "gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 // NewDB open mysql connection
@@ -13,7 +15,8 @@ func NewDB(dsn, mode string) (*gorm.DB, error) {
 	}
 
 	if mode == "debug" {
-		db.Debug()
+		db.Logger = logger.Default.LogMode(logger.Info)
+		db.AutoMigrate(&api.User{})
 	}
 
 	return db, err
