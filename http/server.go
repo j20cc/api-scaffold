@@ -62,7 +62,6 @@ func (s *Server) Shutdown(ctx context.Context) error {
 
 func initValidatorTrans(locale string) ut.Translator {
 	v, _ := binding.Validator.Engine().(*validator.Validate)
-	// 注册一个获取json tag的自定义方法
 	v.RegisterTagNameFunc(func(fld reflect.StructField) string {
 		name := strings.SplitN(fld.Tag.Get("json"), ",", 2)[0]
 		if name == "-" {
@@ -81,7 +80,6 @@ func initValidatorTrans(locale string) ut.Translator {
 	}
 
 	var err error
-	// 注册翻译器
 	switch locale {
 	case "en":
 		err = enTranslations.RegisterDefaultTranslations(v, trans)

@@ -15,7 +15,7 @@ type User struct {
 
 // UserService represents a service for managing users.
 type UserService interface {
-	FindUserByID(id int) (*User, error)
+	FindUserByKV(key string, val interface{}) (*User, error)
 	FindUsers(filter UserFilter) ([]*User, int, error)
 	CreateUser(user *User) error
 }

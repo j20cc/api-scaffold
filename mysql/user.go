@@ -17,9 +17,11 @@ func NewUserService(db *gorm.DB) *UserService {
 	return &UserService{db: db}
 }
 
-// FindUserByID retrieves a user by ID
-func (s *UserService) FindUserByID(id int) (*api.User, error) {
-	return nil, nil
+// FindUserByKV retrieves a user by ID
+func (s *UserService) FindUserByKV(key string, val interface{}) (*api.User, error) {
+	var user api.User
+	r := s.db.Where(key+" = ?", val).First(&user)
+	return &user, r.Error
 }
 
 // FindUsers retrieves users by filter

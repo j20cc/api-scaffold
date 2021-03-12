@@ -58,6 +58,12 @@ func responseWithData(c *gin.Context, code int, data interface{}) {
 	c.JSON(code, data)
 }
 
+func (s *Server) respondWithServerErr(c *gin.Context) {
+	responseWithData(c, http.StatusInternalServerError, gin.H{
+		"err_msg": "server error",
+	})
+}
+
 func (s *Server) respondWithValidationErr(c *gin.Context, err error) {
 	code := http.StatusUnprocessableEntity
 	errs, ok := err.(validator.ValidationErrors)
