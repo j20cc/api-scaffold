@@ -16,6 +16,11 @@ type Config struct {
 		Password string `mapstructure:"mysql_password"`
 		Database string `mapstructure:"mysql_database"`
 	} `mapstructure:",squash"`
+
+	JWT struct {
+		Secret string `mapstructure:"jwt_secret"`
+		TTL    int    `mapstructure:"jwt_ttl"`
+	} `mapstructure:",squash"`
 }
 
 func (c *Config) GetMysqlDsn() string {

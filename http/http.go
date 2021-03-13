@@ -2,6 +2,7 @@ package http
 
 import (
 	"crypto/md5"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -23,41 +24,40 @@ func (s *Server) registerRoutes() {
 
 	r.POST("/login", s.HandleLogin)
 	r.POST("/register", s.HandleRegister)
+	r.GET("/profile", s.auth(), s.HandleProfile)
 }
 
 type customJwtClaims struct {
-	userID   int
-	userName string
+	UserID   int
+	UserName string
 	jwt.StandardClaims
 }
 
-func createToken(id int, name, secret string) (string, error) {
-	claims := customJwtClaims{
+var ErrInvalidToken = errors.New("invalid token")
+
+func (s *Server) genToken(id int, name string) (string, error) {
+	c := customJwtClaims{
 		id,
 		name,
 		jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Second * 100).Unix(),
+			ExpiresAt: time.Now().Add(time.Duration(s.config.JWT.TTL) * time.Minute).Unix(),
 		},
 	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-	return token.SignedString([]byte(secret))
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, c)
+	return token.SignedString([]byte(s.config.JWT.Secret))
 }
 
-func parseToken(tokenString, secret string) {
-	token, err := jwt.ParseWithClaims(tokenString, &customJwtClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(secret), nil
+func (s *Server) parseToken(tokenString string) (*customJwtClaims, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &customJwtClaims{}, func(token *jwt.Token) (i interface{}, err error) {
+		return []byte(s.config.JWT.Secret), nil
 	})
-
-	if claims, ok := token.Claims.(*customJwtClaims); ok && token.Valid {
-		fmt.Printf("%v", claims.userID)
-	} else {
-		fmt.Println(err)
+	if err != nil {
+		return nil, err
 	}
-}
-
-func (s *Server) responseWithData(c *gin.Context, code int, data interface{}) {
-	c.JSON(code, data)
+	if claims, ok := token.Claims.(*customJwtClaims); ok && token.Valid {
+		return claims, nil
+	}
+	return nil, ErrInvalidToken
 }
 
 func (s *Server) respondWithServerErr(c *gin.Context, err error, showErr bool) {
@@ -70,8 +70,14 @@ func (s *Server) respondWithServerErr(c *gin.Context, err error, showErr bool) {
 	})
 }
 
-func (s *Server) respondWithValidationErr(c *gin.Context, err error) {
-	code := http.StatusUnprocessableEntity
+func (s *Server) respondWithAuthErr(c *gin.Context, err error) {
+	c.JSON(http.StatusUnauthorized, gin.H{
+		"err_msg": err.Error(),
+	})
+}
+
+func (s *Server) respondWithErr(c *gin.Context, err error) {
+	code := http.StatusBadRequest
 	errs, ok := err.(validator.ValidationErrors)
 	if !ok {
 		c.JSON(code, gin.H{
@@ -79,6 +85,7 @@ func (s *Server) respondWithValidationErr(c *gin.Context, err error) {
 		})
 		return
 	}
+	code = http.StatusUnprocessableEntity
 	c.JSON(code, gin.H{
 		"err_msg": removeTopStruct(errs.Translate(s.translator)),
 	})

@@ -9,14 +9,52 @@ import (
 	"github.com/lukedever/api"
 )
 
+var (
+	ErrInvalidUser   = errors.New("用户不存在")
+	ErrEmailExist    = errors.New("邮箱用户已存在")
+	ErrEmailNotExist = errors.New("邮箱用户不存在")
+	ErrWrongPassword = errors.New("密码错误")
+)
+
 type loginRequest struct {
-	Email    string `json:"email" binding:"required"`
+	Email    string `json:"email" binding:"required,email"`
 	Password string `json:"password" binding:"required"`
+}
+
+type loginResp struct {
+	Token string    `json:"email"`
+	User  *api.User `json:"user"`
 }
 
 // HandleLogin handle '/login' route
 func (s *Server) HandleLogin(c *gin.Context) {
+	var req loginRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		s.respondWithErr(c, err)
+		return
+	}
 
+	user, _ := s.UserService.FindUserByKV("email", req.Email)
+	if user.ID == 0 {
+		s.respondWithErr(c, ErrEmailNotExist)
+		return
+	}
+
+	if md5Str(req.Password) != user.Password {
+		s.respondWithErr(c, ErrWrongPassword)
+		return
+	}
+
+	token, err := s.genToken(user.ID, user.Name)
+	if err != nil {
+		s.respondWithServerErr(c, err, false)
+		return
+	}
+
+	c.JSON(http.StatusOK, loginResp{
+		Token: token,
+		User:  user,
+	})
 }
 
 type registerRequest struct {
@@ -25,19 +63,17 @@ type registerRequest struct {
 	RePassword string `json:"repassword" binding:"required,eqfield=Password"`
 }
 
-var ErrEmailExists = errors.New("邮箱用户已存在")
-
 // HandleRegister handle '/register' route
 func (s *Server) HandleRegister(c *gin.Context) {
 	var req registerRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		s.respondWithValidationErr(c, err)
+		s.respondWithErr(c, err)
 		return
 	}
 
 	user, _ := s.UserService.FindUserByKV("email", req.Email)
 	if user.ID > 0 {
-		s.respondWithValidationErr(c, ErrEmailExists)
+		s.respondWithErr(c, ErrEmailExist)
 		return
 	}
 
@@ -52,5 +88,17 @@ func (s *Server) HandleRegister(c *gin.Context) {
 		return
 	}
 
-	s.responseWithData(c, http.StatusOK, u)
+	c.JSON(http.StatusOK, u)
+}
+
+// HandleProfile handle '/profile' route
+func (s *Server) HandleProfile(c *gin.Context) {
+	id, _ := c.Get("user_id")
+	user, _ := s.UserService.FindUserByKV("id", id)
+	if user.ID == 0 {
+		s.respondWithAuthErr(c, ErrInvalidUser)
+		return
+	}
+
+	c.JSON(http.StatusOK, user)
 }
