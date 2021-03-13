@@ -2,10 +2,15 @@ package http
 
 import (
 	"context"
+	"errors"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
 	"reflect"
 	"strings"
+	"syscall"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
@@ -48,16 +53,32 @@ func NewServer(c *api.Config) *Server {
 	return svr
 }
 
-// Run server
-func (s *Server) Run() error {
-	s.registerRoutes()
-
-	return s.httpServer.ListenAndServe()
-}
-
 // Shutdown server
 func (s *Server) Shutdown(ctx context.Context) error {
 	return s.httpServer.Shutdown(ctx)
+}
+
+func (s *Server) Run() {
+	go func() {
+		if err := s.httpServer.ListenAndServe(); err != nil && errors.Is(err, http.ErrServerClosed) {
+			log.Printf("listen error: %s\n", err)
+		}
+	}()
+	log.Printf("server running on %s", s.config.Addr)
+
+	quit := make(chan os.Signal)
+	// kill (no param) default send syscall.SIGTERM
+	// kill -2 is syscall.SIGINT
+	// kill -9 is syscall.SIGKILL but can't be catch, so don't need add it
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	log.Println("shutting down server...")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := s.Shutdown(ctx); err != nil {
+		log.Fatal("server forced to shutdown:", err)
+	}
+	log.Println("server exiting")
 }
 
 func initValidatorTrans(locale string) ut.Translator {
