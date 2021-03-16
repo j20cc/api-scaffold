@@ -47,7 +47,7 @@ func (s *Server) HandleLogin(c *gin.Context) {
 
 	token, err := s.genToken(user.ID, user.Name)
 	if err != nil {
-		s.respondWithServerErr(c, err, false)
+		s.respondWithServerErr(c, err)
 		return
 	}
 
@@ -84,7 +84,7 @@ func (s *Server) HandleRegister(c *gin.Context) {
 		Password: md5Str(req.Password),
 	}
 	if err := s.UserService.CreateUser(&u); err != nil {
-		s.respondWithServerErr(c, err, true)
+		s.respondWithServerErr(c, err)
 		return
 	}
 

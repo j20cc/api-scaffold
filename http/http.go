@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -25,6 +26,7 @@ func (s *Server) registerRoutes() {
 	r.POST("/login", s.HandleLogin)
 	r.POST("/register", s.HandleRegister)
 	r.GET("/profile", s.auth(), s.HandleProfile)
+	// r.POST("/parse", s.HandleParse)
 }
 
 type customJwtClaims struct {
@@ -60,13 +62,10 @@ func (s *Server) parseToken(tokenString string) (*customJwtClaims, error) {
 	return nil, ErrInvalidToken
 }
 
-func (s *Server) respondWithServerErr(c *gin.Context, err error, showErr bool) {
-	msg := "server error"
-	if showErr {
-		msg = msg + " : " + err.Error()
-	}
+func (s *Server) respondWithServerErr(c *gin.Context, err error) {
+	log.Printf("error: %v", err)
 	c.JSON(http.StatusInternalServerError, gin.H{
-		"err_msg": msg,
+		"err_msg": "server error",
 	})
 }
 

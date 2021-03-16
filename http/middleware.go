@@ -18,6 +18,7 @@ func (s *Server) auth() gin.HandlerFunc {
 		claims, err := s.parseToken(token)
 		if err != nil {
 			s.respondWithAuthErr(c, err)
+			c.Abort()
 			return
 		}
 		c.Set("user_id", claims.UserID)

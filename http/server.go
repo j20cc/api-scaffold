@@ -59,6 +59,7 @@ func (s *Server) Shutdown(ctx context.Context) error {
 }
 
 func (s *Server) Run() {
+	s.registerRoutes()
 	go func() {
 		if err := s.httpServer.ListenAndServe(); err != nil && errors.Is(err, http.ErrServerClosed) {
 			log.Printf("listen error: %s\n", err)
