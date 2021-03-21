@@ -1,11 +1,11 @@
 .PHONY: all build run gotool clean help
 
-BINARY="bin/api"
+APPNAME="api"
 
 all: gotool build run
 
 build:
-	go build -o ${BINARY} cmd/api/*.go
+	go build -o bin/${APPNAME} cmd/${APPNAME}/*.go
 
 run:
 	${BINARY}

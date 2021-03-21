@@ -26,7 +26,6 @@ func (s *Server) registerRoutes() {
 	r.POST("/login", s.HandleLogin)
 	r.POST("/register", s.HandleRegister)
 	r.GET("/profile", s.auth(), s.HandleProfile)
-	// r.POST("/parse", s.HandleParse)
 }
 
 type customJwtClaims struct {
@@ -35,7 +34,7 @@ type customJwtClaims struct {
 	jwt.StandardClaims
 }
 
-var ErrInvalidToken = errors.New("invalid token")
+var errInvalidToken = errors.New("invalid token")
 
 func (s *Server) genToken(id int, name string) (string, error) {
 	c := customJwtClaims{
@@ -59,7 +58,7 @@ func (s *Server) parseToken(tokenString string) (*customJwtClaims, error) {
 	if claims, ok := token.Claims.(*customJwtClaims); ok && token.Valid {
 		return claims, nil
 	}
-	return nil, ErrInvalidToken
+	return nil, errInvalidToken
 }
 
 func (s *Server) respondWithServerErr(c *gin.Context, err error) {

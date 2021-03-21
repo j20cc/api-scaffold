@@ -10,10 +10,10 @@ import (
 )
 
 var (
-	ErrInvalidUser   = errors.New("用户不存在")
-	ErrEmailExist    = errors.New("邮箱用户已存在")
-	ErrEmailNotExist = errors.New("邮箱用户不存在")
-	ErrWrongPassword = errors.New("密码错误")
+	errInvalidUser   = errors.New("用户不存在")
+	errEmailExist    = errors.New("邮箱用户已存在")
+	errEmailNotExist = errors.New("邮箱用户不存在")
+	errWrongPassword = errors.New("密码错误")
 )
 
 type loginRequest struct {
@@ -36,12 +36,12 @@ func (s *Server) HandleLogin(c *gin.Context) {
 
 	user, _ := s.UserService.FindUserByKV("email", req.Email)
 	if user.ID == 0 {
-		s.respondWithErr(c, ErrEmailNotExist)
+		s.respondWithErr(c, errEmailNotExist)
 		return
 	}
 
 	if md5Str(req.Password) != user.Password {
-		s.respondWithErr(c, ErrWrongPassword)
+		s.respondWithErr(c, errWrongPassword)
 		return
 	}
 
@@ -73,7 +73,7 @@ func (s *Server) HandleRegister(c *gin.Context) {
 
 	user, _ := s.UserService.FindUserByKV("email", req.Email)
 	if user.ID > 0 {
-		s.respondWithErr(c, ErrEmailExist)
+		s.respondWithErr(c, errEmailExist)
 		return
 	}
 
@@ -96,7 +96,7 @@ func (s *Server) HandleProfile(c *gin.Context) {
 	id, _ := c.Get("user_id")
 	user, _ := s.UserService.FindUserByKV("id", id)
 	if user.ID == 0 {
-		s.respondWithAuthErr(c, ErrInvalidUser)
+		s.respondWithAuthErr(c, errInvalidUser)
 		return
 	}
 

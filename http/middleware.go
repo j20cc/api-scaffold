@@ -11,7 +11,7 @@ func (s *Server) auth() gin.HandlerFunc {
 		tokens := c.GetHeader("Authorization")
 		token := strings.TrimPrefix(tokens, "Bearer ")
 		if token == "" {
-			s.respondWithAuthErr(c, ErrInvalidToken)
+			s.respondWithAuthErr(c, errInvalidToken)
 			c.Abort()
 			return
 		}
