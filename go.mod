@@ -1,4 +1,4 @@
-module github.com/aaa/bbb
+module github.com/lukedever/api
 
 go 1.15
 
