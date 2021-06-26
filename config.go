@@ -1,6 +1,16 @@
 package api
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
+
+type Model struct {
+	ID        uint       `gorm:"primarykey" json:"id"`
+	CreatedAt time.Time  `json:"-"`
+	UpdatedAt time.Time  `json:"-"`
+	DeletedAt *time.Time `gorm:"index" json:"-"`
+}
 
 // Config is main config
 type Config struct {

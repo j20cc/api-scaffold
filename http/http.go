@@ -36,9 +36,9 @@ type customJwtClaims struct {
 
 var errInvalidToken = errors.New("invalid token")
 
-func (s *Server) genToken(id int, name string) (string, error) {
+func (s *Server) genToken(id uint, name string) (string, error) {
 	c := customJwtClaims{
-		id,
+		int(id),
 		name,
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Duration(s.config.JWT.TTL) * time.Minute).Unix(),

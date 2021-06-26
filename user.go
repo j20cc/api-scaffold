@@ -1,16 +1,12 @@
 package api
 
-import "time"
-
 // User represents a system account
 type User struct {
-	ID       int    `json:"id"`
+	Model
+
 	Name     string `json:"name"`
 	Email    string `json:"email"`
 	Password string `json:"-"`
-
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
 }
 
 // UserService represents a service for managing users.
