@@ -18,14 +18,16 @@ import (
 func (s *Server) registerRoutes() {
 	r := s.router
 	r.GET("/welcome", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "welcome gopher",
-		})
+		c.Data(http.StatusOK, "text/html; charset=utf-8", []byte("<h1>welcome gopher</h1>"))
 	})
 
-	r.POST("/login", s.HandleLogin)
-	r.POST("/register", s.HandleRegister)
-	r.GET("/profile", s.auth(), s.HandleProfile)
+	// user
+	apiR := r.Group("/api")
+	{
+		apiR.POST("/login", s.HandleLogin)
+		apiR.POST("/register", s.HandleRegister)
+		apiR.GET("/profile", s.auth(), s.HandleProfile)
+	}
 }
 
 type customJwtClaims struct {
