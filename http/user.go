@@ -22,7 +22,7 @@ type loginRequest struct {
 }
 
 type loginResp struct {
-	Token string    `json:"email"`
+	Token string    `json:"token"`
 	User  *api.User `json:"user"`
 }
 
