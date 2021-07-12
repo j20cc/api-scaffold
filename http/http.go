@@ -21,9 +21,9 @@ func (s *Server) registerRoutes() {
 		c.Data(http.StatusOK, "text/html; charset=utf-8", []byte("<h1>welcome gopher</h1>"))
 	})
 
-	// user
 	apiR := r.Group("/api")
 	{
+		// user routes
 		apiR.POST("/login", s.HandleLogin)
 		apiR.POST("/register", s.HandleRegister)
 		apiR.GET("/profile", s.auth(), s.HandleProfile)

@@ -1,7 +1,6 @@
 .PHONY: all build run gotool clean help
 
 APPNAME=api
-bin/${APPNAME}
 
 all: gotool build run
 
