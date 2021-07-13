@@ -101,6 +101,6 @@ func removeTopStruct(fields map[string]string) map[string]string {
 
 func md5Str(str string) string {
 	w := md5.New()
-	io.WriteString(w, str)
+	_, _ = io.WriteString(w, str)
 	return fmt.Sprintf("%x", w.Sum(nil))
 }

@@ -16,7 +16,7 @@ func NewDB(dsn, mode string) (*gorm.DB, error) {
 
 	if mode == "debug" {
 		db.Logger = logger.Default.LogMode(logger.Info)
-		db.AutoMigrate(&api.User{})
+		_ = db.AutoMigrate(&api.User{})
 	}
 
 	return db, err
